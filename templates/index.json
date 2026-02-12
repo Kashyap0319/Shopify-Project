@@ -1,0 +1,39 @@
+{
+  "sections": {
+    "abhinaya_trust": {
+      "type": "abhinaya-trust-banner",
+      "settings": {
+        "text_1": "Weaving sarees since 30+ years",
+        "text_2": "500+ Looms with all process in-house",
+        "text_3": "Best quality at factory price",
+        "bg_color": "#faf5f0",
+        "text_color": "#5a4a3a"
+      }
+    },
+    "abhinaya_youtube": {
+      "type": "abhinaya-youtube-cta",
+      "settings": {
+        "heading": "View our manufacturing facility",
+        "subtext": "See how we weave & finish in-house",
+        "bg_color": "#1a1a2e",
+        "text_color": "#ffffff"
+      }
+    },
+    "abhinaya_sort_filter": {
+      "type": "abhinaya-sort-filter",
+      "settings": {}
+    },
+    "abhinaya_product_feed": {
+      "type": "abhinaya-product-feed",
+      "settings": {
+        "products_per_page": 12
+      }
+    }
+  },
+  "order": [
+    "abhinaya_trust",
+    "abhinaya_youtube",
+    "abhinaya_sort_filter",
+    "abhinaya_product_feed"
+  ]
+}

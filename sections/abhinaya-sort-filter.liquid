@@ -1,0 +1,358 @@
+<!-- Section: Sort + Filter row -->
+<div class="abhinaya-sf" id="abhinayaSortFilter">
+  <button class="abhinaya-sf__btn" id="abhinayaSortBtn" aria-label="Sort products">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M6 12h12M9 18h6"/></svg>
+    Sort
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+  </button>
+  <button class="abhinaya-sf__btn" id="abhinayaFilterBtn" aria-label="Filter products">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+    Filter
+    <span class="abhinaya-sf__badge" id="abhinayaFilterBadge" hidden>0</span>
+  </button>
+</div>
+
+<!-- Sort bottom sheet -->
+<div class="abhinaya-sheet-overlay" id="abhinayaSortOverlay"></div>
+<div class="abhinaya-sheet" id="abhinayaSortSheet" role="dialog" aria-label="Sort products">
+  <div class="abhinaya-sheet__handle"></div>
+  <div class="abhinaya-sheet__header">
+    <span>Sort by</span>
+    <button class="abhinaya-sheet__close" id="abhinayaSortClose">&times;</button>
+  </div>
+  <div class="abhinaya-sheet__body">
+    <label class="abhinaya-sheet__radio">
+      <input type="radio" name="sort" value="manual" checked> Recommended
+    </label>
+    <label class="abhinaya-sheet__radio">
+      <input type="radio" name="sort" value="price-ascending"> Price: Low to High
+    </label>
+    <label class="abhinaya-sheet__radio">
+      <input type="radio" name="sort" value="price-descending"> Price: High to Low
+    </label>
+    <label class="abhinaya-sheet__radio">
+      <input type="radio" name="sort" value="created-descending"> Newest
+    </label>
+    <label class="abhinaya-sheet__radio">
+      <input type="radio" name="sort" value="best-selling"> Best Selling
+    </label>
+  </div>
+</div>
+
+<!-- Filter bottom sheet -->
+<div class="abhinaya-sheet-overlay" id="abhinayaFilterOverlay"></div>
+<div class="abhinaya-sheet abhinaya-sheet--full" id="abhinayaFilterSheet" role="dialog" aria-label="Filter products">
+  <div class="abhinaya-sheet__handle"></div>
+  <div class="abhinaya-sheet__header">
+    <span>Filters</span>
+    <button class="abhinaya-sheet__close" id="abhinayaFilterClose">&times;</button>
+  </div>
+  <div class="abhinaya-sheet__body abhinaya-sheet__body--scroll">
+    <!-- Price range -->
+    <details class="abhinaya-filter-group" open>
+      <summary class="abhinaya-filter-group__title">Price range</summary>
+      <div class="abhinaya-filter-group__content">
+        <div class="abhinaya-price-inputs">
+          <label class="abhinaya-price-field">
+            <span>Min</span>
+            <input type="number" class="abhinaya-price-input" id="abhinayaPriceMin" placeholder="0" min="0">
+          </label>
+          <span class="abhinaya-price-dash">–</span>
+          <label class="abhinaya-price-field">
+            <span>Max</span>
+            <input type="number" class="abhinaya-price-input" id="abhinayaPriceMax" placeholder="Any" min="0">
+          </label>
+        </div>
+      </div>
+    </details>
+    <!-- Color -->
+    <details class="abhinaya-filter-group">
+      <summary class="abhinaya-filter-group__title">Color</summary>
+      <div class="abhinaya-filter-group__content">
+        <label class="abhinaya-filter-check"><input type="checkbox" value="red"> Red</label>
+        <label class="abhinaya-filter-check"><input type="checkbox" value="blue"> Blue</label>
+        <label class="abhinaya-filter-check"><input type="checkbox" value="green"> Green</label>
+        <label class="abhinaya-filter-check"><input type="checkbox" value="gold"> Gold</label>
+        <label class="abhinaya-filter-check"><input type="checkbox" value="pink"> Pink</label>
+        <label class="abhinaya-filter-check"><input type="checkbox" value="yellow"> Yellow</label>
+        <label class="abhinaya-filter-check"><input type="checkbox" value="white"> White</label>
+        <label class="abhinaya-filter-check"><input type="checkbox" value="black"> Black</label>
+      </div>
+    </details>
+    <!-- Fabric -->
+    <details class="abhinaya-filter-group">
+      <summary class="abhinaya-filter-group__title">Fabric</summary>
+      <div class="abhinaya-filter-group__content">
+        <label class="abhinaya-filter-check"><input type="checkbox" value="silk"> Silk</label>
+        <label class="abhinaya-filter-check"><input type="checkbox" value="cotton"> Cotton</label>
+        <label class="abhinaya-filter-check"><input type="checkbox" value="linen"> Linen</label>
+        <label class="abhinaya-filter-check"><input type="checkbox" value="organza"> Organza</label>
+        <label class="abhinaya-filter-check"><input type="checkbox" value="chiffon"> Chiffon</label>
+      </div>
+    </details>
+    <!-- Occasion -->
+    <details class="abhinaya-filter-group">
+      <summary class="abhinaya-filter-group__title">Occasion</summary>
+      <div class="abhinaya-filter-group__content">
+        <label class="abhinaya-filter-check"><input type="checkbox" value="wedding"> Wedding</label>
+        <label class="abhinaya-filter-check"><input type="checkbox" value="festive"> Festive</label>
+        <label class="abhinaya-filter-check"><input type="checkbox" value="casual"> Casual</label>
+        <label class="abhinaya-filter-check"><input type="checkbox" value="party"> Party</label>
+        <label class="abhinaya-filter-check"><input type="checkbox" value="daily"> Daily Wear</label>
+      </div>
+    </details>
+    <!-- Availability -->
+    <details class="abhinaya-filter-group">
+      <summary class="abhinaya-filter-group__title">Availability</summary>
+      <div class="abhinaya-filter-group__content">
+        <label class="abhinaya-filter-check"><input type="checkbox" value="ready"> Ready to ship</label>
+        <label class="abhinaya-filter-check"><input type="checkbox" value="in-stock"> In stock</label>
+      </div>
+    </details>
+  </div>
+  <div class="abhinaya-sheet__footer">
+    <button class="abhinaya-sheet__footer-btn abhinaya-sheet__footer-btn--secondary" id="abhinayaFilterClear">Clear All</button>
+    <button class="abhinaya-sheet__footer-btn abhinaya-sheet__footer-btn--primary" id="abhinayaFilterApply">Apply</button>
+  </div>
+</div>
+
+<style>
+  .abhinaya-sf {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 16px;
+    height: 48px;
+    background: #fff;
+    border-top: 1px solid #f0f0f0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .abhinaya-sf.is-sticky {
+    position: sticky;
+    top: 112px;
+    z-index: 999;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+  }
+  .abhinaya-sf__btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    height: 40px;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 10px;
+    background: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1a1a2e;
+    cursor: pointer;
+    min-height: 44px;
+    padding: 0 16px;
+  }
+  .abhinaya-sf__btn:active {
+    background: #f5f5f5;
+  }
+  .abhinaya-sf__badge {
+    background: #e63946;
+    color: #fff;
+    font-size: 10px;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 9px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+    font-weight: 700;
+  }
+
+  /* === BOTTOM SHEETS === */
+  .abhinaya-sheet-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 4000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s;
+  }
+  .abhinaya-sheet-overlay.is-open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .abhinaya-sheet {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #fff;
+    border-radius: 16px 16px 0 0;
+    z-index: 4001;
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+    max-height: 50vh;
+    display: flex;
+    flex-direction: column;
+  }
+  .abhinaya-sheet--full {
+    max-height: 85vh;
+  }
+  .abhinaya-sheet.is-open {
+    transform: translateY(0);
+  }
+  .abhinaya-sheet__handle {
+    width: 36px;
+    height: 4px;
+    background: #ddd;
+    border-radius: 2px;
+    margin: 10px auto 0;
+  }
+  .abhinaya-sheet__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    font-size: 16px;
+    font-weight: 700;
+    border-bottom: 1px solid #eee;
+  }
+  .abhinaya-sheet__close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .abhinaya-sheet__body {
+    padding: 8px 0;
+  }
+  .abhinaya-sheet__body--scroll {
+    overflow-y: auto;
+    flex: 1;
+  }
+  .abhinaya-sheet__radio {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    font-size: 15px;
+    cursor: pointer;
+    min-height: 44px;
+  }
+  .abhinaya-sheet__radio input {
+    width: 18px;
+    height: 18px;
+    accent-color: #1a1a2e;
+  }
+
+  /* Filter groups */
+  .abhinaya-filter-group {
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .abhinaya-filter-group__title {
+    padding: 14px 16px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 44px;
+  }
+  .abhinaya-filter-group__title::after {
+    content: '+';
+    font-size: 18px;
+    font-weight: 400;
+    color: #888;
+  }
+  .abhinaya-filter-group[open] > .abhinaya-filter-group__title::after {
+    content: '−';
+  }
+  .abhinaya-filter-group__content {
+    padding: 0 16px 14px;
+  }
+  .abhinaya-filter-check {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    font-size: 14px;
+    cursor: pointer;
+    min-height: 44px;
+  }
+  .abhinaya-filter-check input {
+    width: 18px;
+    height: 18px;
+    accent-color: #1a1a2e;
+  }
+  .abhinaya-price-inputs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .abhinaya-price-field {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 12px;
+    color: #888;
+  }
+  .abhinaya-price-input {
+    height: 40px;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 0 10px;
+    font-size: 14px;
+    width: 100%;
+  }
+  .abhinaya-price-dash {
+    margin-top: 16px;
+    color: #888;
+  }
+
+  /* Footer */
+  .abhinaya-sheet__footer {
+    display: flex;
+    gap: 10px;
+    padding: 12px 16px;
+    border-top: 1px solid #eee;
+    background: #fff;
+  }
+  .abhinaya-sheet__footer-btn {
+    flex: 1;
+    height: 48px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    min-height: 44px;
+  }
+  .abhinaya-sheet__footer-btn--secondary {
+    background: #f5f5f5;
+    color: #1a1a2e;
+  }
+  .abhinaya-sheet__footer-btn--primary {
+    background: #1a1a2e;
+    color: #fff;
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Sort & Filter",
+  "settings": [],
+  "presets": [
+    {
+      "name": "Sort & Filter"
+    }
+  ]
+}
+{% endschema %}

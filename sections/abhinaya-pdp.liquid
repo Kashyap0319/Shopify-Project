@@ -1,0 +1,554 @@
+{%- comment -%}
+  Abhinaya PDP – Main product section
+  Contains: Image carousel, Color variants strip, Product info, Product highlights
+{%- endcomment -%}
+
+{%- assign current_variant = product.selected_or_first_available_variant -%}
+
+<div class="abhinaya-pdp" id="abhinayaPdp" data-product-id="{{ product.id }}" data-variant-id="{{ current_variant.id }}">
+
+  <!-- 1. IMAGE CAROUSEL -->
+  <div class="abhinaya-carousel" id="abhinayaCarousel">
+    <div class="abhinaya-carousel__track" id="abhinayaCarouselTrack">
+      {%- assign image_count = 0 -%}
+      {%- for media in product.media -%}
+        {%- if media.media_type == 'image' -%}
+          {%- assign image_count = image_count | plus: 1 -%}
+          <div class="abhinaya-carousel__slide" data-index="{{ forloop.index0 }}">
+            <div class="abhinaya-carousel__zoom-wrap">
+              <img
+                src="{{ media | image_url: width: 800 }}"
+                srcset="{{ media | image_url: width: 400 }} 400w, {{ media | image_url: width: 800 }} 800w, {{ media | image_url: width: 1200 }} 1200w"
+                sizes="100vw"
+                alt="{{ media.alt | default: product.title | escape }}"
+                class="abhinaya-carousel__img"
+                loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
+                width="{{ media.width }}"
+                height="{{ media.height }}"
+                draggable="false"
+              >
+            </div>
+          </div>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+
+    {%- if image_count > 1 -%}
+      <!-- Dot indicators -->
+      <div class="abhinaya-carousel__dots" id="abhinayaCarouselDots">
+        {%- assign dot_index = 0 -%}
+        {%- for media in product.media -%}
+          {%- if media.media_type == 'image' -%}
+            <button class="abhinaya-carousel__dot{% if dot_index == 0 %} is-active{% endif %}"
+                    data-index="{{ dot_index }}" aria-label="Go to image {{ dot_index | plus: 1 }}"></button>
+            {%- assign dot_index = dot_index | plus: 1 -%}
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+
+      <!-- Arrow overlays -->
+      <button class="abhinaya-carousel__arrow abhinaya-carousel__arrow--prev" id="abhinayaCarouselPrev" aria-label="Previous image" hidden>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <button class="abhinaya-carousel__arrow abhinaya-carousel__arrow--next" id="abhinayaCarouselNext" aria-label="Next image">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    {%- endif -%}
+  </div>
+
+  <!-- 2. COLOR VARIANTS STRIP -->
+  {%- assign color_variants = product.metafields.custom.color_variants.value -%}
+  {%- if color_variants and color_variants.size > 0 -%}
+    <div class="abhinaya-pdp__color-strip">
+      <h3 class="abhinaya-pdp__color-label">More Colors</h3>
+      <div class="abhinaya-pdp__color-scroll">
+        <a href="{{ product.url }}" class="abhinaya-pdp__color-thumb abhinaya-pdp__color-thumb--active" aria-current="true">
+          <img src="{{ product.featured_image | image_url: width: 120 }}" alt="{{ product.title | escape }}" width="72" height="96" loading="lazy">
+          <span class="abhinaya-pdp__color-selected">✓</span>
+        </a>
+        {%- for sibling in color_variants -%}
+          {%- if sibling.id != product.id -%}
+            <a href="{{ sibling.url }}" class="abhinaya-pdp__color-thumb">
+              <img src="{{ sibling.featured_image | image_url: width: 120 }}" alt="{{ sibling.title | escape }}" width="72" height="96" loading="lazy">
+              <span class="abhinaya-pdp__color-selected" hidden>✓</span>
+            </a>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    </div>
+  {%- endif -%}
+
+  <!-- 3. PRODUCT INFO BLOCK -->
+  <div class="abhinaya-pdp__info">
+    <!-- Product Name -->
+    <h1 class="abhinaya-pdp__title">{{ product.title }}</h1>
+
+    <!-- Price + Discount -->
+    <div class="abhinaya-pdp__price-block">
+      <span class="abhinaya-pdp__price">{{ current_variant.price | money }}</span>
+      {%- if current_variant.compare_at_price > current_variant.price -%}
+        <span class="abhinaya-pdp__compare-price">{{ current_variant.compare_at_price | money }}</span>
+        {%- assign discount_pct = current_variant.compare_at_price | minus: current_variant.price | times: 100 | divided_by: current_variant.compare_at_price -%}
+        <span class="abhinaya-pdp__discount-badge">{{ discount_pct }}% OFF</span>
+      {%- endif -%}
+    </div>
+
+    <!-- Star Ratings (clickable -> scrolls to reviews) -->
+    <a href="#abhinayaReviews" class="abhinaya-pdp__rating-link" id="abhinayaRatingLink">
+      <div class="abhinaya-pdp__stars">
+        {%- assign rating = product.metafields.reviews.rating.value.rating | default: 4 -%}
+        {%- for i in (1..5) -%}
+          {%- if i <= rating -%}
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="#f5a623" stroke="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          {%- else -%}
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+      <span class="abhinaya-pdp__rating-count">({{ product.metafields.reviews.rating_count | default: 0 }} ratings)</span>
+    </a>
+
+    <!-- Size / Blouse info -->
+    {%- if section.settings.show_size_info -%}
+      <div class="abhinaya-pdp__size-info">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 002 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0022 16z"/></svg>
+        <span>{{ section.settings.blouse_info_text | default: 'Size: 5.5m length x 1.1m width (with blouse piece)' }}</span>
+      </div>
+    {%- endif -%}
+
+    <!-- Gift / WhatsApp CTA row -->
+    <div class="abhinaya-pdp__cta-row">
+      {%- if section.settings.show_gift_toggle -%}
+        <label class="abhinaya-pdp__gift-toggle">
+          <input type="checkbox" id="abhinayaGiftToggle">
+          <span class="abhinaya-pdp__gift-icon">&#127873;</span>
+          <span>Gift Packaging (+&#8377;{{ section.settings.gift_packaging_price | default: '50' }})</span>
+        </label>
+      {%- endif -%}
+
+      <a href="https://wa.me/{{ section.settings.whatsapp_number | default: '919999999999' }}?text={{ 'Hi, I want to see this saree via live video: ' | append: product.title | append: ' - ' | append: product.url | url_encode }}"
+         class="abhinaya-pdp__whatsapp-btn" target="_blank" rel="noopener">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        DM on WhatsApp
+      </a>
+    </div>
+  </div>
+
+  <!-- 4. PRODUCT HIGHLIGHTS ACCORDION -->
+  <details class="abhinaya-pdp__highlights" id="abhinayaHighlights">
+    <summary class="abhinaya-pdp__highlights-trigger">
+      <span>Product Highlights</span>
+      <svg class="abhinaya-pdp__highlights-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+    </summary>
+    <div class="abhinaya-pdp__highlights-body">
+      <table class="abhinaya-pdp__highlights-table">
+        {%- if product.metafields.custom.fabric != blank -%}
+          <tr><th>Fabric</th><td>{{ product.metafields.custom.fabric }}</td></tr>
+        {%- endif -%}
+        {%- if product.metafields.custom.color_name != blank -%}
+          <tr><th>Color</th><td>{{ product.metafields.custom.color_name }}</td></tr>
+        {%- endif -%}
+        {%- if product.metafields.custom.pattern != blank -%}
+          <tr><th>Pattern</th><td>{{ product.metafields.custom.pattern }}</td></tr>
+        {%- endif -%}
+        {%- if product.metafields.custom.pattu_type != blank -%}
+          <tr><th>Pattu Type</th><td>{{ product.metafields.custom.pattu_type }}</td></tr>
+        {%- endif -%}
+        {%- if product.metafields.custom.blouse_info != blank -%}
+          <tr><th>Blouse</th><td>{{ product.metafields.custom.blouse_info }}</td></tr>
+        {%- endif -%}
+        {%- comment -%} Fallback: show product description if no metafields {%- endcomment -%}
+        {%- if product.metafields.custom.fabric == blank and product.description != blank -%}
+          <tr><td colspan="2" class="abhinaya-pdp__highlights-desc">{{ product.description }}</td></tr>
+        {%- endif -%}
+      </table>
+    </div>
+  </details>
+</div>
+
+<!-- ATC Toast notification -->
+<div class="abhinaya-toast" id="abhinayaToast" aria-live="polite" hidden>
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2d8f4e" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+  <span id="abhinayaToastText">Added to cart!</span>
+</div>
+
+<script src="{{ 'abhinaya-pdp.js' | asset_url }}" defer="defer"></script>
+
+<style>
+  /* === PDP LAYOUT === */
+  .abhinaya-pdp {
+    background: #fff;
+  }
+
+  /* === IMAGE CAROUSEL === */
+  .abhinaya-carousel {
+    position: relative;
+    background: #f5f5f5;
+  }
+  .abhinaya-carousel__track {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .abhinaya-carousel__track::-webkit-scrollbar { display: none; }
+  .abhinaya-carousel__slide {
+    flex: 0 0 100%;
+    scroll-snap-align: start;
+    aspect-ratio: 3/4;
+    max-height: 460px;
+    overflow: hidden;
+  }
+  .abhinaya-carousel__zoom-wrap {
+    width: 100%;
+    height: 100%;
+    touch-action: pan-y;
+  }
+  .abhinaya-carousel__zoom-wrap.is-zoomed {
+    touch-action: none;
+  }
+  .abhinaya-carousel__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.15s ease, filter 0.15s ease;
+    transform-origin: center center;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .abhinaya-carousel__zoom-wrap.is-zoomed .abhinaya-carousel__img {
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));
+  }
+  .abhinaya-carousel__dots {
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 6px;
+  }
+  .abhinaya-carousel__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255,255,255,0.5);
+    padding: 0;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .abhinaya-carousel__dot.is-active {
+    background: #fff;
+    width: 10px;
+    height: 10px;
+  }
+  .abhinaya-carousel__arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0,0,0,0.25);
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 5;
+  }
+  .abhinaya-carousel__arrow--prev { left: 8px; }
+  .abhinaya-carousel__arrow--next { right: 8px; }
+
+  /* === COLOR VARIANTS STRIP === */
+  .abhinaya-pdp__color-strip {
+    padding: 12px 16px;
+    border-bottom: 1px solid #eee;
+  }
+  .abhinaya-pdp__color-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #888;
+    margin: 0 0 8px;
+  }
+  .abhinaya-pdp__color-scroll {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .abhinaya-pdp__color-scroll::-webkit-scrollbar { display: none; }
+  .abhinaya-pdp__color-thumb {
+    flex: 0 0 auto;
+    width: 72px;
+    aspect-ratio: 3/4;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 2px solid transparent;
+    display: block;
+    position: relative;
+    transition: border-color 0.2s, opacity 0.15s;
+  }
+  .abhinaya-pdp__color-thumb:active {
+    opacity: 0.8;
+  }
+  .abhinaya-pdp__color-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .abhinaya-pdp__color-thumb--active {
+    border-color: #1a1a2e;
+  }
+  .abhinaya-pdp__color-selected {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(26, 26, 46, 0.9);
+    color: #fff;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  /* === PRODUCT INFO === */
+  .abhinaya-pdp__info {
+    padding: 16px;
+  }
+  .abhinaya-pdp__title {
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1.4;
+    margin: 0 0 8px;
+    color: #1a1a2e;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .abhinaya-pdp__price-block {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  .abhinaya-pdp__price {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a1a2e;
+  }
+  .abhinaya-pdp__compare-price {
+    font-size: 14px;
+    color: #999;
+    text-decoration: line-through;
+  }
+  .abhinaya-pdp__discount-badge {
+    font-size: 12px;
+    font-weight: 700;
+    color: #2d8f4e;
+    background: #eaf7ee;
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+  .abhinaya-pdp__rating-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none;
+    margin-bottom: 12px;
+  }
+  .abhinaya-pdp__stars {
+    display: flex;
+    gap: 1px;
+  }
+  .abhinaya-pdp__rating-count {
+    font-size: 13px;
+    color: #888;
+  }
+  .abhinaya-pdp__size-info {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    font-size: 14px;
+    color: #555;
+    padding: 10px 0;
+    border-top: 1px solid #f0f0f0;
+    line-height: 1.4;
+  }
+  .abhinaya-pdp__size-info svg { flex-shrink: 0; margin-top: 1px; }
+
+  /* Gift + WhatsApp CTA row */
+  .abhinaya-pdp__cta-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding-top: 12px;
+    border-top: 1px solid #f0f0f0;
+  }
+  .abhinaya-pdp__gift-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: #1a1a2e;
+    background: #f9f5f0;
+    border: 1px solid #e8ddd0;
+    border-radius: 10px;
+    padding: 10px 14px;
+    cursor: pointer;
+    min-height: 44px;
+  }
+  .abhinaya-pdp__gift-toggle input { width: 18px; height: 18px; accent-color: #1a1a2e; }
+  .abhinaya-pdp__gift-icon { font-size: 16px; }
+  .abhinaya-pdp__whatsapp-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #25d366;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 10px;
+    padding: 10px 14px;
+    text-decoration: none;
+    min-height: 44px;
+  }
+
+  /* === PRODUCT HIGHLIGHTS ACCORDION === */
+  .abhinaya-pdp__highlights {
+    margin: 0 16px;
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+  }
+  .abhinaya-pdp__highlights-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: #1a1a2e;
+    cursor: pointer;
+    list-style: none;
+    min-height: 48px;
+  }
+  .abhinaya-pdp__highlights-trigger::-webkit-details-marker { display: none; }
+  .abhinaya-pdp__highlights-trigger::marker { display: none; content: ''; }
+  .abhinaya-pdp__highlights-chevron {
+    transition: transform 0.25s ease;
+    flex-shrink: 0;
+  }
+  .abhinaya-pdp__highlights[open] .abhinaya-pdp__highlights-chevron {
+    transform: rotate(180deg);
+  }
+  .abhinaya-pdp__highlights-body {
+    padding-bottom: 14px;
+  }
+  .abhinaya-pdp__highlights-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  .abhinaya-pdp__highlights-table th {
+    text-align: left;
+    font-weight: 600;
+    color: #555;
+    padding: 8px 16px 8px 0;
+    width: 110px;
+    vertical-align: top;
+  }
+  .abhinaya-pdp__highlights-table td {
+    color: #1a1a2e;
+    padding: 8px 0;
+  }
+  .abhinaya-pdp__highlights-table tr + tr {
+    border-top: 1px solid #f0f0f0;
+  }
+  .abhinaya-pdp__highlights-desc {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #555;
+  }
+
+  /* === TOAST === */
+  .abhinaya-toast {
+    position: fixed;
+    bottom: 80px;
+    left: 16px;
+    right: 16px;
+    background: #1a1a2e;
+    color: #fff;
+    padding: 14px 16px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    z-index: 5000;
+    transform: translateY(20px);
+    opacity: 0;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    pointer-events: none;
+  }
+  .abhinaya-toast.is-visible {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  .abhinaya-toast svg { flex-shrink: 0; }
+</style>
+
+{% schema %}
+{
+  "name": "Abhinaya PDP",
+  "settings": [
+    {
+      "type": "text",
+      "id": "whatsapp_number",
+      "label": "WhatsApp number (with country code)",
+      "default": "919999999999"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_gift_toggle",
+      "label": "Show gift packaging toggle",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "gift_packaging_price",
+      "label": "Gift packaging price (in rupees)",
+      "default": "50"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_size_info",
+      "label": "Show size & blouse info",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "blouse_info_text",
+      "label": "Size & blouse info text",
+      "default": "Size: 5.5m length × 1.1m width (with blouse piece)"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Abhinaya PDP"
+    }
+  ]
+}
+{% endschema %}

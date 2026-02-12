@@ -1,0 +1,97 @@
+{%- comment -%}
+  Abhinaya PDP – Floating Add to Cart / Buy Now bar
+  Stops floating when user scrolls past this section's position (sentinel div)
+{%- endcomment -%}
+
+<!-- Sentinel: marks where the floating CTA stops floating -->
+<div class="abhinaya-floating-cta__sentinel" id="abhinayaFloatingCtaSentinel"></div>
+
+<!-- Floating bar -->
+<div class="abhinaya-floating-cta" id="abhinayaFloatingCta">
+  <div class="abhinaya-floating-cta__buttons">
+    <button type="button" class="abhinaya-floating-cta__btn abhinaya-floating-cta__btn--atc" id="abhinayaAtcBtn"
+            {% unless product.selected_or_first_available_variant.available %}disabled{% endunless %}
+            data-variant-id="{{ product.selected_or_first_available_variant.id }}">
+      {%- if product.selected_or_first_available_variant.available -%}
+        Add to Cart
+      {%- else -%}
+        Sold Out
+      {%- endif -%}
+    </button>
+    <button type="button" class="abhinaya-floating-cta__btn abhinaya-floating-cta__btn--buy" id="abhinayaBuyNowBtn"
+            {% unless product.selected_or_first_available_variant.available %}disabled{% endunless %}
+            data-variant-id="{{ product.selected_or_first_available_variant.id }}">
+      Buy Now
+    </button>
+  </div>
+</div>
+
+<style>
+  .abhinaya-floating-cta__sentinel {
+    height: 0;
+    overflow: hidden;
+  }
+  .abhinaya-floating-cta {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 900;
+    background: #fff;
+    box-shadow: 0 -2px 12px rgba(0,0,0,0.1);
+    padding: 10px 16px;
+    padding-bottom: max(10px, env(safe-area-inset-bottom));
+    transition: transform 0.3s ease;
+  }
+  .abhinaya-floating-cta.is-hidden {
+    transform: translateY(100%);
+    pointer-events: none;
+  }
+  .abhinaya-floating-cta__buttons {
+    display: flex;
+    gap: 10px;
+  }
+  .abhinaya-floating-cta__btn {
+    flex: 1;
+    height: 48px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .abhinaya-floating-cta__btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .abhinaya-floating-cta__btn--atc {
+    background: #fff;
+    color: #1a1a2e;
+    border: 1.5px solid #1a1a2e;
+  }
+  .abhinaya-floating-cta__btn--atc:active:not(:disabled) {
+    background: #f5f5f5;
+  }
+  .abhinaya-floating-cta__btn--buy {
+    background: #1a1a2e;
+    color: #fff;
+    border: none;
+  }
+  .abhinaya-floating-cta__btn--buy:active:not(:disabled) {
+    background: #2a2a3e;
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Floating CTA",
+  "settings": [],
+  "presets": [
+    {
+      "name": "Floating CTA"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,113 @@
+<!-- Section: YouTube facility strip CTA -->
+<div class="abhinaya-yt" id="abhinayaYtStrip">
+  <a href="{{ section.settings.video_url }}" class="abhinaya-yt__card" target="_blank" rel="noopener" id="abhinayaYtLink" aria-label="View our manufacturing facility on YouTube">
+    <div class="abhinaya-yt__play">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg>
+    </div>
+    <div class="abhinaya-yt__text">
+      <span class="abhinaya-yt__title">{{ section.settings.heading }}</span>
+      {%- if section.settings.subtext != blank -%}
+        <span class="abhinaya-yt__sub">{{ section.settings.subtext }}</span>
+      {%- endif -%}
+    </div>
+    <svg class="abhinaya-yt__arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+  </a>
+</div>
+
+<style>
+  .abhinaya-yt {
+    padding: 12px 16px 16px;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+  }
+  .abhinaya-yt__card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: {{ section.settings.bg_color }};
+    border-radius: 14px;
+    padding: 16px;
+    text-decoration: none;
+    color: {{ section.settings.text_color }};
+    transition: transform 0.15s, box-shadow 0.15s;
+    min-height: 76px;
+  }
+  .abhinaya-yt__card:active {
+    transform: scale(0.98);
+  }
+  .abhinaya-yt__play {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #ff0000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(255,0,0,0.3);
+  }
+  .abhinaya-yt__play svg {
+    margin-left: 2px;
+  }
+  .abhinaya-yt__text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .abhinaya-yt__title {
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+  .abhinaya-yt__sub {
+    font-size: 12px;
+    opacity: 0.7;
+    line-height: 1.3;
+  }
+  .abhinaya-yt__arrow {
+    flex-shrink: 0;
+    opacity: 0.4;
+  }
+</style>
+
+{% schema %}
+{
+  "name": "YouTube CTA",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "View our manufacturing facility"
+    },
+    {
+      "type": "text",
+      "id": "subtext",
+      "label": "Subtext (optional)",
+      "default": "See how we weave & finish in-house"
+    },
+    {
+      "type": "url",
+      "id": "video_url",
+      "label": "YouTube video URL"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Card background",
+      "default": "#1a1a2e"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Card text color",
+      "default": "#ffffff"
+    }
+  ],
+  "presets": [
+    {
+      "name": "YouTube CTA"
+    }
+  ]
+}
+{% endschema %}

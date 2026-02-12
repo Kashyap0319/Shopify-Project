@@ -1,0 +1,106 @@
+{%- comment -%}
+  Abhinaya PDP – Similar Products Feed
+  2-col grid, max 80 products, uses same card as homepage
+{%- endcomment -%}
+
+{%- assign collection = product.collections.first -%}
+{%- assign max_items = section.settings.max_products | default: 80 -%}
+{%- assign per_page = 20 -%}
+
+<section class="abhinaya-pdp-similar" id="abhinayaSimilar">
+  <h2 class="abhinaya-pdp-similar__heading">Similar Sarees</h2>
+
+  <div class="abhinaya-feed__grid" id="abhinayaSimilarGrid" data-collection="{{ collection.handle }}" data-product-id="{{ product.id }}" data-max="{{ max_items }}">
+    {%- if collection -%}
+      {%- assign loaded = 0 -%}
+      {%- for item in collection.products limit: per_page -%}
+        {%- if item.id != product.id -%}
+          {% render 'abhinaya-card', card_product: item %}
+          {%- assign loaded = loaded | plus: 1 -%}
+        {%- endif -%}
+      {%- endfor -%}
+    {%- else -%}
+      {%- comment -%} Fallback: use product recommendations {%- endcomment -%}
+      {%- for item in recommendations.products limit: per_page -%}
+        {% render 'abhinaya-card', card_product: item %}
+      {%- endfor -%}
+    {%- endif -%}
+  </div>
+
+  <!-- Loading state -->
+  <div class="abhinaya-feed__loader" id="abhinayaSimilarLoader" hidden>
+    <div class="abhinaya-feed__grid">
+      {%- for i in (1..4) -%}
+        <div class="abhinaya-card abhinaya-card--skeleton">
+          <div class="abhinaya-card__img-wrap abhinaya-skeleton"></div>
+          <div class="abhinaya-card__info">
+            <div class="abhinaya-skeleton abhinaya-skeleton--text" style="width:80%"></div>
+            <div class="abhinaya-skeleton abhinaya-skeleton--text" style="width:50%"></div>
+          </div>
+        </div>
+      {%- endfor -%}
+    </div>
+  </div>
+
+  <!-- End state -->
+  <div class="abhinaya-pdp-similar__end" id="abhinayaSimilarEnd" hidden>
+    <p>You've reached the end</p>
+    {%- if collection -%}
+      <a href="{{ collection.url }}" class="abhinaya-pdp-similar__explore">Explore {{ collection.title }} &rarr;</a>
+    {%- endif -%}
+  </div>
+</section>
+
+<style>
+  .abhinaya-pdp-similar {
+    padding: 20px 16px 40px;
+    border-top: 8px solid #f5f5f5;
+  }
+  .abhinaya-pdp-similar__heading {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin: 0 0 16px;
+  }
+  .abhinaya-pdp-similar__end {
+    text-align: center;
+    padding: 24px 0;
+    color: #888;
+    font-size: 14px;
+  }
+  .abhinaya-pdp-similar__end p {
+    margin: 0 0 8px;
+  }
+  .abhinaya-pdp-similar__explore {
+    display: inline-block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1a1a2e;
+    text-decoration: none;
+    padding: 10px 20px;
+    border: 1.5px solid #1a1a2e;
+    border-radius: 8px;
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Similar Products",
+  "settings": [
+    {
+      "type": "range",
+      "id": "max_products",
+      "label": "Maximum products to show",
+      "min": 20,
+      "max": 80,
+      "step": 10,
+      "default": 80
+    }
+  ],
+  "presets": [
+    {
+      "name": "Similar Products"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,71 @@
+<!-- Section: Static trust banner -->
+<div class="abhinaya-trust" aria-label="Trust information">
+  <p class="abhinaya-trust__text">
+    {{ section.settings.text_1 }}&nbsp;&nbsp;|&nbsp;&nbsp;{{ section.settings.text_2 }}&nbsp;&nbsp;|&nbsp;&nbsp;{{ section.settings.text_3 }}
+  </p>
+</div>
+
+<style>
+  .abhinaya-trust {
+    background: {{ section.settings.bg_color }};
+    padding: 14px 16px;
+    text-align: center;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .abhinaya-trust__text {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: {{ section.settings.text_color }};
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    word-spacing: 0.02em;
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Trust Banner",
+  "settings": [
+    {
+      "type": "text",
+      "id": "text_1",
+      "label": "Statement 1",
+      "default": "Weaving sarees since 30+ years"
+    },
+    {
+      "type": "text",
+      "id": "text_2",
+      "label": "Statement 2",
+      "default": "500+ Looms with all process in-house"
+    },
+    {
+      "type": "text",
+      "id": "text_3",
+      "label": "Statement 3",
+      "default": "Best quality at factory price"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background color",
+      "default": "#faf5f0"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#5a4a3a"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Trust Banner"
+    }
+  ]
+}
+{% endschema %}

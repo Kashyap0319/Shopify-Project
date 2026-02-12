@@ -1,0 +1,44 @@
+{
+  "sections": {
+    "abhinaya-pdp": {
+      "type": "abhinaya-pdp",
+      "settings": {
+        "whatsapp_number": "919876543210",
+        "show_gift_toggle": true,
+        "gift_packaging_price": "50",
+        "show_size_info": true,
+        "blouse_info_text": "Includes unstitched blouse piece (0.8m)"
+      }
+    },
+    "abhinaya-trust-banner": {
+      "type": "abhinaya-trust-banner",
+      "settings": {}
+    },
+    "abhinaya-youtube-cta": {
+      "type": "abhinaya-youtube-cta",
+      "settings": {}
+    },
+    "abhinaya-pdp-reviews": {
+      "type": "abhinaya-pdp-reviews",
+      "settings": {}
+    },
+    "abhinaya-floating-cta": {
+      "type": "abhinaya-floating-cta",
+      "settings": {}
+    },
+    "abhinaya-pdp-similar": {
+      "type": "abhinaya-pdp-similar",
+      "settings": {
+        "max_products": 80
+      }
+    }
+  },
+  "order": [
+    "abhinaya-pdp",
+    "abhinaya-trust-banner",
+    "abhinaya-youtube-cta",
+    "abhinaya-pdp-reviews",
+    "abhinaya-floating-cta",
+    "abhinaya-pdp-similar"
+  ]
+}

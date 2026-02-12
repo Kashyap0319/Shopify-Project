@@ -1,0 +1,107 @@
+<!-- Section: Auto-scroll benefits marquee strip -->
+<div class="abhinaya-marquee" aria-label="Store benefits: Free shipping, 2-day easy returns, Factory prices" role="marquee">
+  <div class="abhinaya-marquee__track">
+    {%- for i in (1..4) -%}
+      <span class="abhinaya-marquee__content">
+        {{ section.settings.text_1 }}&nbsp;&nbsp;<span class="abhinaya-marquee__sep">&rarr;</span>&nbsp;&nbsp;{{ section.settings.text_2 }}&nbsp;&nbsp;<span class="abhinaya-marquee__sep">&rarr;</span>&nbsp;&nbsp;{{ section.settings.text_3 }}&nbsp;&nbsp;<span class="abhinaya-marquee__sep">&rarr;</span>&nbsp;&nbsp;
+      </span>
+    {%- endfor -%}
+  </div>
+</div>
+
+<style>
+  .abhinaya-marquee {
+    background: {{ section.settings.bg_color }};
+    color: {{ section.settings.text_color }};
+    height: 34px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+    position: relative;
+    z-index: 1001;
+    width: 100%;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .abhinaya-marquee__track {
+    display: flex;
+    white-space: nowrap;
+    animation: abhinaya-marquee-scroll 25s linear infinite;
+    will-change: transform;
+  }
+  /* Pause on touch/hold */
+  .abhinaya-marquee:hover .abhinaya-marquee__track,
+  .abhinaya-marquee:active .abhinaya-marquee__track {
+    animation-play-state: paused;
+  }
+  .abhinaya-marquee__content {
+    display: inline-flex;
+    align-items: center;
+    gap: 0;
+    padding: 0;
+  }
+  .abhinaya-marquee__sep {
+    opacity: 0.6;
+  }
+  @keyframes abhinaya-marquee-scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-25%); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .abhinaya-marquee__track {
+      animation: none;
+    }
+    .abhinaya-marquee {
+      justify-content: center;
+    }
+    .abhinaya-marquee__content:not(:first-child) {
+      display: none;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Marquee Strip",
+  "settings": [
+    {
+      "type": "text",
+      "id": "text_1",
+      "label": "Benefit 1",
+      "default": "Free shipping"
+    },
+    {
+      "type": "text",
+      "id": "text_2",
+      "label": "Benefit 2",
+      "default": "2-day easy returns"
+    },
+    {
+      "type": "text",
+      "id": "text_3",
+      "label": "Benefit 3",
+      "default": "Factory prices"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background color",
+      "default": "#1a1a2e"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#ffffff"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Marquee Strip"
+    }
+  ]
+}
+{% endschema %}

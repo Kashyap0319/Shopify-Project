@@ -1,0 +1,29 @@
+{
+  "name": "t:sections.header.name",
+  "type": "header",
+  "sections": {
+    "abhinaya-marquee": {
+      "type": "abhinaya-marquee",
+      "settings": {
+        "text_1": "Free shipping",
+        "text_2": "2-day easy returns",
+        "text_3": "Factory prices",
+        "bg_color": "#1a1a2e",
+        "text_color": "#ffffff"
+      }
+    },
+    "abhinaya-header": {
+      "type": "abhinaya-header",
+      "settings": {
+        "menu": "main-menu",
+        "whatsapp_link": "https://wa.me/919999999999",
+        "search_placeholder": "Search products / sarees / design...",
+        "lang_label": "తెలుగు ⇄ EN"
+      }
+    }
+  },
+  "order": [
+    "abhinaya-marquee",
+    "abhinaya-header"
+  ]
+}

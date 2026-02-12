@@ -1,0 +1,718 @@
+<!-- Section: Sticky main header + search + language toggle -->
+<header class="abhinaya-header" id="AbhinayaHeader">
+  <!-- Main header row -->
+  <div class="abhinaya-header__row">
+    <button class="abhinaya-header__menu-btn" aria-label="Open navigation menu" id="abhinayaMenuBtn">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+
+    <a href="/" class="abhinaya-header__logo" aria-label="Abhinaya - Go to homepage">
+      {%- if section.settings.logo != blank -%}
+        <img src="{{ section.settings.logo | image_url: height: 200 }}" alt="{{ shop.name }}" loading="eager" class="abhinaya-header__logo-img">
+      {%- else -%}
+        <span class="abhinaya-header__logo-text">{{ shop.name }}</span>
+      {%- endif -%}
+    </a>
+
+    <div class="abhinaya-header__actions">
+      <a href="{{ section.settings.whatsapp_link }}" class="abhinaya-header__icon-btn" aria-label="Chat on WhatsApp" target="_blank" rel="noopener">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      </a>
+      <a href="{{ routes.cart_url }}" class="abhinaya-header__icon-btn abhinaya-header__cart-btn" aria-label="Cart" id="abhinayaCartBtn">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        <span class="abhinaya-header__cart-count" id="abhinayaCartCount" {% if cart.item_count == 0 %}hidden{% endif %}>{{ cart.item_count }}</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Search row + language toggle below -->
+  <div class="abhinaya-header__search-block">
+    <form action="{{ routes.search_url }}" method="get" class="abhinaya-header__search-form" role="search">
+      <svg class="abhinaya-header__search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="search" name="q" class="abhinaya-header__search-input" placeholder="{{ section.settings.search_placeholder }}" autocomplete="off" aria-label="Search products">
+      <input type="hidden" name="type" value="product">
+      <button type="reset" class="abhinaya-header__search-clear" aria-label="Clear search" hidden>&times;</button>
+    </form>
+    <div class="abhinaya-header__lang-row">
+      <button class="abhinaya-header__lang-toggle" id="abhinayaLangBtn" aria-label="Change language">
+        <span id="abhinayaLangLabel">{{ section.settings.lang_label }}</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- Mobile navigation drawer -->
+<div class="abhinaya-nav-overlay" id="abhinayaNavOverlay"></div>
+<nav class="abhinaya-nav-drawer" id="abhinayaNavDrawer" aria-label="Main navigation">
+  <!-- Close button -->
+  <div class="abhinaya-nav-drawer__header">
+    <span class="abhinaya-nav-drawer__title">Menu</span>
+    <button class="abhinaya-nav-drawer__close" id="abhinayaNavClose" aria-label="Close menu">&times;</button>
+  </div>
+
+  <div class="abhinaya-nav-drawer__body">
+    <!-- 1. Account / Login block -->
+    <div class="abhinaya-nav-drawer__account">
+      {%- if customer -%}
+        <div class="abhinaya-nav-drawer__account-info">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <div>
+            <div class="abhinaya-nav-drawer__account-name">{{ customer.first_name }} {{ customer.last_name }}</div>
+            <div class="abhinaya-nav-drawer__account-email">{{ customer.email }}</div>
+          </div>
+        </div>
+        <a href="{{ routes.account_url }}" class="abhinaya-nav-drawer__account-link">My Account &rarr;</a>
+      {%- else -%}
+        <div class="abhinaya-nav-drawer__account-info">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <div>
+            <div class="abhinaya-nav-drawer__account-name">Welcome</div>
+            <div class="abhinaya-nav-drawer__account-email">Login to view your orders</div>
+          </div>
+        </div>
+        <a href="{{ routes.account_login_url }}" class="abhinaya-nav-drawer__account-link">Login / Sign Up &rarr;</a>
+      {%- endif -%}
+    </div>
+
+    <!-- 2. Bestsellers primary nav link -->
+    <a href="/collections/bestsellers" class="abhinaya-nav-drawer__primary-link">
+      <span>Bestsellers</span>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </a>
+
+    <!-- 3. Explore from collections (accordion) -->
+    <details class="abhinaya-nav-drawer__accordion">
+      <summary class="abhinaya-nav-drawer__accordion-trigger">
+        <span>Explore from collections</span>
+        <svg class="abhinaya-nav-drawer__chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </summary>
+      <div class="abhinaya-nav-drawer__accordion-content">
+        <a href="/collections/dharmavaram-pattu-sarees" class="abhinaya-nav-drawer__sub-link">Dharmavaram Pattu Sarees</a>
+        <a href="/collections/uppada-pattu-sarees" class="abhinaya-nav-drawer__sub-link">Uppada Pattu Sarees</a>
+        <a href="/collections/mangalagiri-pattu-sarees" class="abhinaya-nav-drawer__sub-link">Mangalagiri Pattu Sarees</a>
+        <a href="/collections/temple-sarees" class="abhinaya-nav-drawer__sub-link">Temple Sarees</a>
+        <a href="/collections/wedding-sarees" class="abhinaya-nav-drawer__sub-link">Wedding Sarees</a>
+      </div>
+    </details>
+
+    <!-- 4. Why buy from Abhinaya? (accordion) -->
+    <details class="abhinaya-nav-drawer__accordion">
+      <summary class="abhinaya-nav-drawer__accordion-trigger">
+        <span>Why buy from Abhinaya?</span>
+        <svg class="abhinaya-nav-drawer__chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </summary>
+      <div class="abhinaya-nav-drawer__accordion-content">
+        <div class="abhinaya-nav-drawer__info-text">
+          <p><strong>11,50,000+ Happy Customers</strong> across India trust Abhinaya for authentic handloom sarees.</p>
+          <p>We are official partners of <strong>KLM Shopping Mall</strong> and <strong>RS Brothers</strong>.</p>
+          <p><strong>6,000+ Designs</strong> — fresh collection added every week from our own looms.</p>
+          <p><strong>Factory-direct prices</strong> — no middlemen, no markups. You pay what the saree is truly worth.</p>
+        </div>
+      </div>
+    </details>
+
+    <!-- 5. Return & COD policy (accordion) -->
+    <details class="abhinaya-nav-drawer__accordion">
+      <summary class="abhinaya-nav-drawer__accordion-trigger">
+        <span>Return &amp; COD policy</span>
+        <svg class="abhinaya-nav-drawer__chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </summary>
+      <div class="abhinaya-nav-drawer__accordion-content">
+        <div class="abhinaya-nav-drawer__info-text">
+          <p><strong>Easy 2-day returns</strong> — if you are not satisfied, return the saree within 2 days of delivery. No questions asked.</p>
+          <p><strong>Refund process:</strong> Refunds are initiated within 24 hours of receiving the returned item and credited to your original payment method in 5–7 business days.</p>
+          <p><strong>Cash on Delivery</strong> available on all orders for just ₹99 extra.</p>
+        </div>
+      </div>
+    </details>
+
+    <!-- 6. Social media links -->
+    <div class="abhinaya-nav-drawer__social">
+      <span class="abhinaya-nav-drawer__social-label">Follow us</span>
+      <div class="abhinaya-nav-drawer__social-icons">
+        <a href="{{ section.settings.instagram_url }}" class="abhinaya-nav-drawer__social-btn" target="_blank" rel="noopener" aria-label="Instagram">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+        </a>
+        <a href="{{ section.settings.facebook_url }}" class="abhinaya-nav-drawer__social-btn" target="_blank" rel="noopener" aria-label="Facebook">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+        </a>
+        <a href="{{ section.settings.youtube_url }}" class="abhinaya-nav-drawer__social-btn" target="_blank" rel="noopener" aria-label="YouTube">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. Bottom fixed action buttons -->
+  <div class="abhinaya-nav-drawer__bottom-actions">
+    {%- if customer -%}
+      <a href="{{ routes.account_url }}" class="abhinaya-nav-drawer__action-btn abhinaya-nav-drawer__action-btn--primary">My Account</a>
+    {%- else -%}
+      <a href="{{ routes.account_login_url }}" class="abhinaya-nav-drawer__action-btn abhinaya-nav-drawer__action-btn--primary">Login</a>
+    {%- endif -%}
+    <a href="/pages/track-order" class="abhinaya-nav-drawer__action-btn abhinaya-nav-drawer__action-btn--outline">Track Order</a>
+  </div>
+</nav>
+
+<!-- Language bottom sheet -->
+<div class="abhinaya-lang-overlay" id="abhinayaLangOverlay"></div>
+<div class="abhinaya-lang-sheet" id="abhinayaLangSheet" role="dialog" aria-label="Choose language">
+  <div class="abhinaya-lang-sheet__header">
+    <span>Choose Language</span>
+    <button class="abhinaya-lang-sheet__close" id="abhinayaLangClose">&times;</button>
+  </div>
+  <div class="abhinaya-lang-sheet__options">
+    <button class="abhinaya-lang-sheet__opt" data-lang="te">తెలుగు</button>
+    <button class="abhinaya-lang-sheet__opt" data-lang="en">English</button>
+  </div>
+</div>
+
+<style>
+  /* === HEADER === */
+  .abhinaya-header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: #fff;
+    transition: box-shadow 0.2s;
+  }
+  .abhinaya-header.is-scrolled {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  .abhinaya-header__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    padding: 0 16px;
+  }
+  .abhinaya-header__menu-btn {
+    background: none;
+    border: none;
+    padding: 10px;
+    margin: -10px;
+    cursor: pointer;
+    color: #1a1a2e;
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .abhinaya-header__logo {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    text-decoration: none;
+    color: #1a1a2e;
+  }
+  .abhinaya-header__logo-img {
+    height: {{ section.settings.logo_height }}px;
+    width: auto;
+    max-width: 160px;
+    display: block;
+    object-fit: contain;
+  }
+  .abhinaya-header__logo-text {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+  .abhinaya-header__actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .abhinaya-header__icon-btn {
+    background: none;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    color: #1a1a2e;
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    position: relative;
+  }
+  .abhinaya-header__cart-count {
+    position: absolute;
+    top: 4px;
+    right: 2px;
+    background: #e63946;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+    line-height: 1;
+  }
+
+  /* === SEARCH + LANG BLOCK === */
+  .abhinaya-header__search-block {
+    padding: 0 16px 12px;
+  }
+  .abhinaya-header__search-form {
+    width: 100%;
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  .abhinaya-header__lang-row {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 8px;
+  }
+  .abhinaya-header__search-icon {
+    position: absolute;
+    left: 12px;
+    color: #888;
+    pointer-events: none;
+  }
+  .abhinaya-header__search-input {
+    width: 100%;
+    height: 44px;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 11px;
+    padding: 0 40px 0 38px;
+    font-size: 14px;
+    background: #f8f8f8;
+    color: #1a1a2e;
+    outline: none;
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+  }
+  .abhinaya-header__search-input:focus {
+    border-color: #1a1a2e;
+    background: #fff;
+  }
+  .abhinaya-header__search-input::placeholder {
+    color: #aaa;
+  }
+  .abhinaya-header__search-clear {
+    position: absolute;
+    right: 8px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: #888;
+    cursor: pointer;
+    padding: 8px;
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .abhinaya-header__lang-toggle {
+    background: none;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 0 12px;
+    height: 44px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #1a1a2e;
+    cursor: pointer;
+    white-space: nowrap;
+    min-width: 44px;
+  }
+
+  /* === NAV DRAWER === */
+  .abhinaya-nav-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 2000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s;
+  }
+  .abhinaya-nav-overlay.is-open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .abhinaya-nav-drawer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 300px;
+    max-width: 85vw;
+    background: #fff;
+    z-index: 2001;
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+    display: flex;
+    flex-direction: column;
+  }
+  .abhinaya-nav-drawer.is-open {
+    transform: translateX(0);
+  }
+  .abhinaya-nav-drawer__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid #eee;
+    flex-shrink: 0;
+  }
+  .abhinaya-nav-drawer__title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a1a2e;
+  }
+  .abhinaya-nav-drawer__close {
+    background: none;
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    padding: 8px;
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #1a1a2e;
+  }
+  .abhinaya-nav-drawer__body {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Account block */
+  .abhinaya-nav-drawer__account {
+    padding: 16px;
+    border-bottom: 1px solid #eee;
+    background: #fafafa;
+  }
+  .abhinaya-nav-drawer__account-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+    color: #1a1a2e;
+  }
+  .abhinaya-nav-drawer__account-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1a1a2e;
+  }
+  .abhinaya-nav-drawer__account-email {
+    font-size: 12px;
+    color: #888;
+    margin-top: 2px;
+  }
+  .abhinaya-nav-drawer__account-link {
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #1a1a2e;
+    text-decoration: none;
+    margin-top: 4px;
+  }
+  .abhinaya-nav-drawer__account-link:active {
+    opacity: 0.7;
+  }
+
+  /* Primary nav link (Bestsellers) */
+  .abhinaya-nav-drawer__primary-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #1a1a2e;
+    text-decoration: none;
+    border-bottom: 1px solid #eee;
+    min-height: 48px;
+  }
+  .abhinaya-nav-drawer__primary-link:active {
+    background: #f5f5f5;
+  }
+
+  /* Accordion sections */
+  .abhinaya-nav-drawer__accordion {
+    border-bottom: 1px solid #eee;
+  }
+  .abhinaya-nav-drawer__accordion-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #1a1a2e;
+    cursor: pointer;
+    list-style: none;
+    min-height: 48px;
+  }
+  .abhinaya-nav-drawer__accordion-trigger::-webkit-details-marker {
+    display: none;
+  }
+  .abhinaya-nav-drawer__accordion-trigger::marker {
+    display: none;
+    content: '';
+  }
+  .abhinaya-nav-drawer__chevron {
+    transition: transform 0.25s ease;
+    flex-shrink: 0;
+  }
+  .abhinaya-nav-drawer__accordion[open] .abhinaya-nav-drawer__chevron {
+    transform: rotate(180deg);
+  }
+  .abhinaya-nav-drawer__accordion-content {
+    padding: 0 16px 14px;
+  }
+  .abhinaya-nav-drawer__sub-link {
+    display: block;
+    padding: 10px 0;
+    font-size: 14px;
+    color: #444;
+    text-decoration: none;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .abhinaya-nav-drawer__sub-link:last-child {
+    border-bottom: none;
+  }
+  .abhinaya-nav-drawer__sub-link:active {
+    color: #1a1a2e;
+  }
+  .abhinaya-nav-drawer__info-text {
+    font-size: 13px;
+    color: #555;
+    line-height: 1.6;
+  }
+  .abhinaya-nav-drawer__info-text p {
+    margin: 0 0 10px;
+  }
+  .abhinaya-nav-drawer__info-text p:last-child {
+    margin-bottom: 0;
+  }
+  .abhinaya-nav-drawer__info-text strong {
+    color: #1a1a2e;
+  }
+
+  /* Social links */
+  .abhinaya-nav-drawer__social {
+    padding: 16px;
+    border-bottom: 1px solid #eee;
+  }
+  .abhinaya-nav-drawer__social-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 10px;
+  }
+  .abhinaya-nav-drawer__social-icons {
+    display: flex;
+    gap: 16px;
+  }
+  .abhinaya-nav-drawer__social-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #f5f5f5;
+    color: #1a1a2e;
+    text-decoration: none;
+    transition: background 0.15s;
+  }
+  .abhinaya-nav-drawer__social-btn:active {
+    background: #e8e8e8;
+  }
+
+  /* Bottom action buttons */
+  .abhinaya-nav-drawer__bottom-actions {
+    flex-shrink: 0;
+    display: flex;
+    gap: 10px;
+    padding: 12px 16px;
+    border-top: 1px solid #eee;
+    background: #fff;
+  }
+  .abhinaya-nav-drawer__action-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 44px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .abhinaya-nav-drawer__action-btn--primary {
+    background: #1a1a2e;
+    color: #fff;
+    border: none;
+  }
+  .abhinaya-nav-drawer__action-btn--primary:active {
+    background: #2a2a3e;
+  }
+  .abhinaya-nav-drawer__action-btn--outline {
+    background: #fff;
+    color: #1a1a2e;
+    border: 1.5px solid #1a1a2e;
+  }
+  .abhinaya-nav-drawer__action-btn--outline:active {
+    background: #f5f5f5;
+  }
+
+  /* === LANGUAGE SHEET === */
+  .abhinaya-lang-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 3000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s;
+  }
+  .abhinaya-lang-overlay.is-open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .abhinaya-lang-sheet {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #fff;
+    border-radius: 16px 16px 0 0;
+    z-index: 3001;
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+    padding: 20px 16px 32px;
+  }
+  .abhinaya-lang-sheet.is-open {
+    transform: translateY(0);
+  }
+  .abhinaya-lang-sheet__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 16px;
+  }
+  .abhinaya-lang-sheet__close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 8px;
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .abhinaya-lang-sheet__options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .abhinaya-lang-sheet__opt {
+    padding: 14px 16px;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 10px;
+    background: #fff;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: left;
+    min-height: 44px;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .abhinaya-lang-sheet__opt:hover,
+  .abhinaya-lang-sheet__opt.is-active {
+    border-color: #1a1a2e;
+    background: #f5f5f5;
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Abhinaya Header",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "logo",
+      "label": "Logo image"
+    },
+    {
+      "type": "range",
+      "id": "logo_height",
+      "min": 20,
+      "max": 80,
+      "step": 2,
+      "default": 44,
+      "unit": "px",
+      "label": "Logo height"
+    },
+    {
+      "type": "link_list",
+      "id": "menu",
+      "label": "Navigation menu",
+      "default": "main-menu"
+    },
+    {
+      "type": "text",
+      "id": "whatsapp_link",
+      "label": "WhatsApp chat link",
+      "default": "https://wa.me/919999999999"
+    },
+    {
+      "type": "text",
+      "id": "search_placeholder",
+      "label": "Search placeholder text",
+      "default": "Search products / sarees / design..."
+    },
+    {
+      "type": "text",
+      "id": "lang_label",
+      "label": "Language toggle label",
+      "default": "తెలుగు ⇄ EN"
+    },
+    {
+      "type": "text",
+      "id": "instagram_url",
+      "label": "Instagram URL",
+      "default": "https://www.instagram.com/"
+    },
+    {
+      "type": "text",
+      "id": "facebook_url",
+      "label": "Facebook URL",
+      "default": "https://www.facebook.com/"
+    },
+    {
+      "type": "text",
+      "id": "youtube_url",
+      "label": "YouTube URL",
+      "default": "https://www.youtube.com/"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Abhinaya Header"
+    }
+  ]
+}
+{% endschema %}

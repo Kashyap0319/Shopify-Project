@@ -1,0 +1,813 @@
+{%- comment -%}
+  Abhinaya Track Order Section - Standalone page for customers to track their orders
+  Features:
+  - Order lookup form (Order ID + Phone)
+  - Order status timeline with real-time tracking
+  - Estimated delivery date
+  - Courier details and tracking link
+  - Help and support CTAs
+{%- endcomment -%}
+
+<div class="abhinaya-track-order">
+  <!-- Header -->
+  <header class="abhinaya-track-order__header">
+    <h1 class="abhinaya-track-order__title">Track Your Order</h1>
+    <p class="abhinaya-track-order__subtitle">Enter your order details to see the latest status</p>
+  </header>
+
+  <!-- Lookup Form -->
+  <section class="abhinaya-track-order__form-section">
+    <form class="abhinaya-track-order__form" id="abhinayaTrackForm">
+      <div class="abhinaya-track-order__form-group">
+        <label for="abhinayaOrderId" class="abhinaya-track-order__label">Order ID</label>
+        <input type="text" id="abhinayaOrderId" class="abhinaya-track-order__input" placeholder="e.g. #12345" required>
+        <span class="abhinaya-track-order__input-hint">Found in your confirmation email</span>
+      </div>
+
+      <div class="abhinaya-track-order__form-group">
+        <label for="abhinayaPhone" class="abhinaya-track-order__label">Phone Number</label>
+        <div class="abhinaya-track-order__phone-wrapper">
+          <span class="abhinaya-track-order__country-code">+91</span>
+          <input type="tel" id="abhinayaPhone" class="abhinaya-track-order__input" placeholder="10-digit mobile number" maxlength="10" inputmode="numeric" pattern="[0-9]*" required>
+        </div>
+      </div>
+
+      <button type="submit" class="abhinaya-track-order__search-btn">Track Order</button>
+    </form>
+
+    <!-- Error State -->
+    <div class="abhinaya-track-order__error" id="abhinayaTrackError" hidden>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="8" x2="12" y2="12"/>
+        <line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      <span id="abhinayaTrackErrorText">Order not found. Please check your details.</span>
+    </div>
+  </section>
+
+  <!-- Results Section (shown after successful lookup) -->
+  <section class="abhinaya-track-order__results" id="abhinayaTrackResults" hidden>
+    <!-- Order Header -->
+    <div class="abhinaya-track-order__result-header">
+      <div class="abhinaya-track-order__result-meta">
+        <h2 class="abhinaya-track-order__result-title" id="abhinayaResultOrderId"></h2>
+        <p class="abhinaya-track-order__result-info" id="abhinayaResultStatus"></p>
+      </div>
+      <button class="abhinaya-track-order__reset-btn" id="abhinayaTrackReset">← Back</button>
+    </div>
+
+    <!-- Delivery Timeline -->
+    <div class="abhinaya-track-order__timeline">
+      <h3 class="abhinaya-track-order__timeline-title">Shipment Status</h3>
+      <div class="abhinaya-track-order__timeline-track">
+        <!-- Step 1: Order Confirmed -->
+        <div class="abhinaya-track-order__timeline-step abhinaya-track-order__timeline-step--completed" id="abhinayaStep1">
+          <div class="abhinaya-track-order__timeline-dot">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </div>
+          <span class="abhinaya-track-order__timeline-label">Order Confirmed</span>
+          <span class="abhinaya-track-order__timeline-date" id="abhinayaStep1Date">Today</span>
+        </div>
+
+        <!-- Step 2: Packed -->
+        <div class="abhinaya-track-order__timeline-step" id="abhinayaStep2">
+          <div class="abhinaya-track-order__timeline-dot">
+            <span></span>
+          </div>
+          <span class="abhinaya-track-order__timeline-label">Packed</span>
+          <span class="abhinaya-track-order__timeline-date" id="abhinayaStep2Date">Soon</span>
+        </div>
+
+        <!-- Step 3: Shipped -->
+        <div class="abhinaya-track-order__timeline-step" id="abhinayaStep3">
+          <div class="abhinaya-track-order__timeline-dot">
+            <span></span>
+          </div>
+          <span class="abhinaya-track-order__timeline-label">Shipped</span>
+          <span class="abhinaya-track-order__timeline-date" id="abhinayaStep3Date">Pending</span>
+        </div>
+
+        <!-- Step 4: In Transit -->
+        <div class="abhinaya-track-order__timeline-step" id="abhinayaStep4">
+          <div class="abhinaya-track-order__timeline-dot">
+            <span></span>
+          </div>
+          <span class="abhinaya-track-order__timeline-label">In Transit</span>
+          <span class="abhinaya-track-order__timeline-date" id="abhinayaStep4Date">Pending</span>
+        </div>
+
+        <!-- Step 5: Delivered -->
+        <div class="abhinaya-track-order__timeline-step" id="abhinayaStep5">
+          <div class="abhinaya-track-order__timeline-dot">
+            <span></span>
+          </div>
+          <span class="abhinaya-track-order__timeline-label">Delivered</span>
+          <span class="abhinaya-track-order__timeline-date" id="abhinayaStep5Date">Pending</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Courier Details -->
+    <div class="abhinaya-track-order__courier" id="abhinayaCourierDetails" hidden>
+      <h3 class="abhinaya-track-order__section-title">Courier Details</h3>
+      <div class="abhinaya-track-order__courier-info">
+        <div class="abhinaya-track-order__courier-row">
+          <span class="abhinaya-track-order__courier-label">Courier</span>
+          <span class="abhinaya-track-order__courier-value" id="abhinayaCourierName">Delhivery</span>
+        </div>
+        <div class="abhinaya-track-order__courier-row">
+          <span class="abhinaya-track-order__courier-label">Tracking Number</span>
+          <span class="abhinaya-track-order__courier-value" id="abhinayaCourierTrackingId">DL12345678</span>
+        </div>
+        <a href="#" class="abhinaya-track-order__courier-link" id="abhinayaCourierLink" target="_blank">
+          Track on Courier Website
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+            <polyline points="15 3 21 3 21 9"/>
+            <line x1="10" y1="14" x2="21" y2="3"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+
+    <!-- Estimated Delivery -->
+    <div class="abhinaya-track-order__delivery-estimate">
+      <h3 class="abhinaya-track-order__section-title">Estimated Delivery</h3>
+      <div class="abhinaya-track-order__estimate-card">
+        <span class="abhinaya-track-order__estimate-date" id="abhinayaEstimatedDate">Jan 15 - Jan 17</span>
+        <p class="abhinaya-track-order__estimate-info">Delivery to your address</p>
+      </div>
+    </div>
+
+    <!-- Order Items -->
+    <div class="abhinaya-track-order__items">
+      <h3 class="abhinaya-track-order__section-title">Order Items</h3>
+      <div class="abhinaya-track-order__items-list" id="abhinayaResultItems"></div>
+    </div>
+
+    <!-- Support CTA -->
+    <div class="abhinaya-track-order__support">
+      <h3 class="abhinaya-track-order__section-title">Need Help?</h3>
+      <div class="abhinaya-track-order__support-buttons">
+        <a href="https://wa.me/911234567890" class="abhinaya-track-order__support-btn abhinaya-track-order__support-btn--whatsapp" target="_blank">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.67-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.076 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421-7.403h-.004a9.87 9.87 0 00-9.746 9.798c0 2.734.732 5.41 2.124 7.738L.929 23.5l8.272-2.737c2.194 1.14 4.656 1.742 7.15 1.742 9.563 0 17.35-7.787 17.35-17.349 0-4.63-1.773-8.981-4.979-12.263-3.206-3.283-7.534-5.084-12.102-5.084z"/>
+          </svg>
+          WhatsApp Support
+        </a>
+        <a href="/pages/contact" class="abhinaya-track-order__support-btn abhinaya-track-order__support-btn--email">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="4" width="20" height="16" rx="2"/>
+            <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+          </svg>
+          Email Us
+        </a>
+      </div>
+    </div>
+  </section>
+</div>
+
+<style>
+  .abhinaya-track-order {
+    padding: 24px 16px 80px;
+    max-width: 100%;
+  }
+
+  /* ── Header ── */
+  .abhinaya-track-order__header {
+    text-align: center;
+    margin-bottom: 32px;
+    padding: 24px 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .abhinaya-track-order__title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin: 0 0 8px;
+  }
+
+  .abhinaya-track-order__subtitle {
+    font-size: 14px;
+    color: #666;
+    margin: 0;
+  }
+
+  /* ── Form ── */
+  .abhinaya-track-order__form-section {
+    margin-bottom: 40px;
+    background: #f9f9f9;
+    padding: 24px 16px;
+    border-radius: 8px;
+  }
+
+  .abhinaya-track-order__form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .abhinaya-track-order__form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .abhinaya-track-order__label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1a1a2e;
+    display: block;
+  }
+
+  .abhinaya-track-order__input {
+    padding: 12px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 16px;
+    color: #1a1a2e;
+    outline: none;
+    transition: border-color 0.15s ease;
+    font-family: inherit;
+  }
+
+  .abhinaya-track-order__input:focus {
+    border-color: #1a1a2e;
+    box-shadow: 0 0 0 3px rgba(26, 26, 46, 0.1);
+  }
+
+  .abhinaya-track-order__input.is-error {
+    border-color: #e63946;
+  }
+
+  .abhinaya-track-order__input-hint {
+    font-size: 12px;
+    color: #999;
+  }
+
+  .abhinaya-track-order__phone-wrapper {
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+  }
+
+  .abhinaya-track-order__country-code {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #1a1a2e;
+    flex: 0 0 auto;
+  }
+
+  .abhinaya-track-order__phone-wrapper .abhinaya-track-order__input {
+    flex: 1 1 auto;
+  }
+
+  .abhinaya-track-order__search-btn {
+    padding: 14px 16px;
+    background: #1a1a2e;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    transition: opacity 0.15s ease;
+    font-family: inherit;
+  }
+
+  .abhinaya-track-order__search-btn:active {
+    opacity: 0.85;
+  }
+
+  .abhinaya-track-order__search-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* ── Error State ── */
+  .abhinaya-track-order__error {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: #fff3f3;
+    border: 1px solid #f0cccc;
+    border-radius: 6px;
+    color: #e63946;
+    font-size: 14px;
+  }
+
+  .abhinaya-track-order__error svg {
+    flex: 0 0 auto;
+  }
+
+  /* ── Results ── */
+  .abhinaya-track-order__result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .abhinaya-track-order__result-meta {
+    flex: 1;
+  }
+
+  .abhinaya-track-order__result-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin: 0 0 4px;
+  }
+
+  .abhinaya-track-order__result-info {
+    font-size: 13px;
+    color: #666;
+    margin: 0;
+  }
+
+  .abhinaya-track-order__reset-btn {
+    padding: 8px 12px;
+    background: transparent;
+    color: #1a1a2e;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease;
+    font-family: inherit;
+  }
+
+  .abhinaya-track-order__reset-btn:active {
+    background: #f9f9f9;
+  }
+
+  /* ── Timeline ── */
+  .abhinaya-track-order__timeline {
+    margin-bottom: 32px;
+  }
+
+  .abhinaya-track-order__timeline-title {
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #999;
+    margin: 0 0 20px;
+  }
+
+  .abhinaya-track-order__timeline-track {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    position: relative;
+  }
+
+  .abhinaya-track-order__timeline-track::before {
+    content: '';
+    position: absolute;
+    left: 12px;
+    top: 24px;
+    bottom: 0;
+    width: 1px;
+    background: linear-gradient(to bottom, #2d8f4e, #ddd);
+  }
+
+  .abhinaya-track-order__timeline-step {
+    position: relative;
+    padding-left: 40px;
+    padding-bottom: 16px;
+  }
+
+  .abhinaya-track-order__timeline-dot {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #f0f0f0;
+    border: 2px solid #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+    font-size: 10px;
+  }
+
+  .abhinaya-track-order__timeline-step--completed .abhinaya-track-order__timeline-dot {
+    background: #2d8f4e;
+    border-color: #2d8f4e;
+    color: #fff;
+  }
+
+  .abhinaya-track-order__timeline-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1a1a2e;
+    margin-bottom: 4px;
+  }
+
+  .abhinaya-track-order__timeline-date {
+    display: block;
+    font-size: 12px;
+    color: #999;
+  }
+
+  /* ── Section Titles ── */
+  .abhinaya-track-order__section-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin: 0 0 16px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* ── Courier Details ── */
+  .abhinaya-track-order__courier {
+    background: #f9f9f9;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 24px;
+  }
+
+  .abhinaya-track-order__courier-info {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .abhinaya-track-order__courier-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+  }
+
+  .abhinaya-track-order__courier-label {
+    color: #666;
+  }
+
+  .abhinaya-track-order__courier-value {
+    font-weight: 600;
+    color: #1a1a2e;
+  }
+
+  .abhinaya-track-order__courier-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px;
+    background: #1a1a2e;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-top: 4px;
+    transition: opacity 0.15s ease;
+  }
+
+  .abhinaya-track-order__courier-link:active {
+    opacity: 0.85;
+  }
+
+  /* ── Delivery Estimate ── */
+  .abhinaya-track-order__delivery-estimate {
+    margin-bottom: 24px;
+  }
+
+  .abhinaya-track-order__estimate-card {
+    background: #f0f7f4;
+    border-left: 4px solid #2d8f4e;
+    border-radius: 6px;
+    padding: 16px;
+    text-align: center;
+  }
+
+  .abhinaya-track-order__estimate-date {
+    display: block;
+    font-size: 18px;
+    font-weight: 700;
+    color: #2d8f4e;
+    margin-bottom: 4px;
+  }
+
+  .abhinaya-track-order__estimate-info {
+    font-size: 12px;
+    color: #666;
+    margin: 0;
+  }
+
+  /* ── Items List ── */
+  .abhinaya-track-order__items {
+    margin-bottom: 32px;
+  }
+
+  .abhinaya-track-order__items-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .abhinaya-track-order__item {
+    display: flex;
+    gap: 12px;
+    padding: 12px;
+    background: #f9f9f9;
+    border-radius: 6px;
+  }
+
+  .abhinaya-track-order__item-image {
+    flex: 0 0 auto;
+    width: 60px;
+    height: 80px;
+    border-radius: 4px;
+    overflow: hidden;
+    background: #fff;
+  }
+
+  .abhinaya-track-order__item-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .abhinaya-track-order__item-info {
+    flex: 1;
+  }
+
+  .abhinaya-track-order__item-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1a1a2e;
+    margin: 0 0 4px;
+  }
+
+  .abhinaya-track-order__item-variant {
+    font-size: 12px;
+    color: #666;
+    margin: 0;
+  }
+
+  /* ── Support ── */
+  .abhinaya-track-order__support {
+    background: #f9f9f9;
+    border-radius: 8px;
+    padding: 20px 16px;
+    text-align: center;
+  }
+
+  .abhinaya-track-order__support-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .abhinaya-track-order__support-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    min-height: 48px;
+    transition: opacity 0.15s ease;
+  }
+
+  .abhinaya-track-order__support-btn--whatsapp {
+    background: #25d366;
+    color: #fff;
+  }
+
+  .abhinaya-track-order__support-btn--whatsapp:active {
+    opacity: 0.85;
+  }
+
+  .abhinaya-track-order__support-btn--email {
+    background: #1a1a2e;
+    color: #fff;
+  }
+
+  .abhinaya-track-order__support-btn--email:active {
+    opacity: 0.85;
+  }
+
+  /* ── Desktop ── */
+  @media (min-width: 750px) {
+    .abhinaya-track-order {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
+
+    .abhinaya-track-order__timeline-track {
+      grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+      gap: 12px;
+    }
+
+    .abhinaya-track-order__timeline-track::before {
+      left: 12px;
+      width: calc(100% - 24px);
+      top: 24px;
+      bottom: auto;
+      height: 1px;
+    }
+
+    .abhinaya-track-order__timeline-step {
+      padding-left: 0;
+      padding-top: 40px;
+      text-align: center;
+    }
+
+    .abhinaya-track-order__timeline-dot {
+      position: relative;
+      left: auto;
+      top: auto;
+      margin: 0 auto 16px;
+    }
+
+    .abhinaya-track-order__support-buttons {
+      flex-direction: row;
+      gap: 12px;
+    }
+
+    .abhinaya-track-order__support-btn {
+      flex: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .abhinaya-track-order__search-btn,
+    .abhinaya-track-order__courier-link,
+    .abhinaya-track-order__support-btn {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  (function() {
+    'use strict';
+
+    var form = document.getElementById('abhinayaTrackForm');
+    var orderIdInput = document.getElementById('abhinayaOrderId');
+    var phoneInput = document.getElementById('abhinayaPhone');
+    var error = document.getElementById('abhinayaTrackError');
+    var errorText = document.getElementById('abhinayaTrackErrorText');
+    var formSection = document.querySelector('.abhinaya-track-order__form-section');
+    var results = document.getElementById('abhinayaTrackResults');
+    var resetBtn = document.getElementById('abhinayaTrackReset');
+
+    function showError(msg) {
+      if (errorText) errorText.textContent = msg;
+      if (error) error.hidden = false;
+    }
+
+    function hideError() {
+      if (error) error.hidden = true;
+    }
+
+    function displayResults(order) {
+      if (document.getElementById('abhinayaResultOrderId')) {
+        document.getElementById('abhinayaResultOrderId').textContent = '#' + order.id;
+      }
+      if (document.getElementById('abhinayaResultStatus')) {
+        document.getElementById('abhinayaResultStatus').textContent = order.status;
+      }
+      if (document.getElementById('abhinayaEstimatedDate')) {
+        document.getElementById('abhinayaEstimatedDate').textContent = order.estimatedDelivery;
+      }
+      if (document.getElementById('abhinayaCourierName')) {
+        document.getElementById('abhinayaCourierName').textContent = order.courier;
+      }
+      if (document.getElementById('abhinayaCourierTrackingId')) {
+        document.getElementById('abhinayaCourierTrackingId').textContent = order.trackingId;
+      }
+
+      // Update timeline
+      var steps = order.currentStep;
+      for (var i = 1; i <= 5; i++) {
+        var step = document.getElementById('abhinayaStep' + i);
+        if (step) {
+          if (i <= steps) {
+            step.classList.add('abhinaya-track-order__timeline-step--completed');
+          } else {
+            step.classList.remove('abhinaya-track-order__timeline-step--completed');
+          }
+        }
+      }
+
+      // Show courier details if shipped
+      if (steps >= 3) {
+        var courierDetails = document.getElementById('abhinayaCourierDetails');
+        if (courierDetails) courierDetails.hidden = false;
+      }
+
+      // Populate items
+      var itemsList = document.getElementById('abhinayaResultItems');
+      if (itemsList) {
+        itemsList.innerHTML = '';
+        order.items.forEach(function(item) {
+          var itemEl = document.createElement('div');
+          itemEl.className = 'abhinaya-track-order__item';
+          itemEl.innerHTML = '<div class="abhinaya-track-order__item-image"><img src="' + item.image + '" alt="" loading="lazy"></div>' +
+            '<div class="abhinaya-track-order__item-info">' +
+            '<h4 class="abhinaya-track-order__item-title">' + item.title + '</h4>' +
+            '<p class="abhinaya-track-order__item-variant">' + item.variant + '</p>' +
+            '</div>';
+          itemsList.appendChild(itemEl);
+        });
+      }
+
+      if (formSection) formSection.hidden = true;
+      if (results) results.hidden = false;
+    }
+
+    if (form) {
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        hideError();
+
+        var orderId = orderIdInput ? orderIdInput.value.replace(/[^0-9]/g, '') : '';
+        var phone = phoneInput ? phoneInput.value.replace(/\D/g, '') : '';
+
+        if (!orderId) {
+          showError('Please enter an order ID');
+          return;
+        }
+        if (phone.length !== 10) {
+          showError('Please enter a valid 10-digit phone number');
+          return;
+        }
+
+        // Mock API call - in production, fetch real order data
+        setTimeout(function() {
+          displayResults({
+            id: orderId,
+            status: 'In transit to your location',
+            currentStep: 3,
+            courier: 'Delhivery',
+            trackingId: 'DL' + orderId,
+            estimatedDelivery: 'Jan 15 - Jan 17, 2025',
+            items: [
+              {
+                title: 'Cotton Saree',
+                variant: 'Maroon with gold border',
+                image: 'https://via.placeholder.com/60x80?text=Saree'
+              }
+            ]
+          });
+        }, 300);
+      });
+    }
+
+    if (resetBtn) {
+      resetBtn.addEventListener('click', function() {
+        if (orderIdInput) orderIdInput.value = '';
+        if (phoneInput) phoneInput.value = '';
+        hideError();
+        if (formSection) formSection.hidden = false;
+        if (results) results.hidden = true;
+        if (orderIdInput) orderIdInput.focus();
+      });
+    }
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Track Order",
+  "settings": [
+    {
+      "type": "text",
+      "id": "whatsapp_number",
+      "label": "WhatsApp Business Number",
+      "info": "Format: 91XXXXXXXXXX",
+      "default": "911234567890"
+    }
+  ]
+}
+{% endschema %}

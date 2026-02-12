@@ -1,0 +1,662 @@
+{%- comment -%}
+  Abhinaya Pre-Checkout – Address & Payment
+  Full-page form: Phone OTP → Address → Payment → Redirect to /checkout
+  Requires: abhinaya-checkout.js
+{%- endcomment -%}
+
+<!-- Sticky Header -->
+<header class="abhinaya-checkout__header">
+  <a href="/cart" class="abhinaya-checkout__back" aria-label="Back to cart">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+  </a>
+  <h1 class="abhinaya-checkout__header-title">Address & Payment</h1>
+  <div class="abhinaya-checkout__header-secure">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2d8f4e" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    <span>Secure</span>
+  </div>
+</header>
+
+<div class="abhinaya-checkout__body">
+
+  <!-- Step 1: Phone & OTP -->
+  <section class="abhinaya-checkout__section" id="abhinayaPhoneSection">
+    <h2 class="abhinaya-checkout__section-title">
+      <span class="abhinaya-checkout__step-num">1</span>
+      Phone Verification
+    </h2>
+
+    <div class="abhinaya-checkout__phone-row">
+      <div class="abhinaya-checkout__country-code">+91</div>
+      <input type="tel" id="abhinayaPhone" class="abhinaya-checkout__input" placeholder="Enter mobile number" maxlength="10" inputmode="numeric" pattern="[0-9]*" autocomplete="tel">
+      <button type="button" class="abhinaya-checkout__otp-btn" id="abhinayaSendOtp">Send OTP</button>
+    </div>
+
+    <!-- OTP input (hidden until OTP sent) -->
+    <div class="abhinaya-checkout__otp-row" id="abhinayaOtpRow" hidden>
+      <div class="abhinaya-checkout__otp-inputs">
+        <input type="tel" class="abhinaya-checkout__otp-digit" maxlength="1" inputmode="numeric" data-index="0">
+        <input type="tel" class="abhinaya-checkout__otp-digit" maxlength="1" inputmode="numeric" data-index="1">
+        <input type="tel" class="abhinaya-checkout__otp-digit" maxlength="1" inputmode="numeric" data-index="2">
+        <input type="tel" class="abhinaya-checkout__otp-digit" maxlength="1" inputmode="numeric" data-index="3">
+      </div>
+      <button type="button" class="abhinaya-checkout__verify-btn" id="abhinayaVerifyOtp">Verify</button>
+      <p class="abhinaya-checkout__resend" id="abhinayaResend">
+        Didn't receive? <button type="button" class="abhinaya-checkout__resend-btn" id="abhinayaResendBtn" disabled>Resend in <span id="abhinayaResendTimer">30</span>s</button>
+      </p>
+    </div>
+
+    <!-- Verified state -->
+    <div class="abhinaya-checkout__verified" id="abhinayaPhoneVerified" hidden>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2d8f4e" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      <span id="abhinayaVerifiedNum"></span>
+      <button type="button" class="abhinaya-checkout__change-btn" id="abhinayaChangePhone">Change</button>
+    </div>
+  </section>
+
+  <!-- Step 2: Delivery Address -->
+  <section class="abhinaya-checkout__section abhinaya-checkout__section--locked" id="abhinayaAddressSection">
+    <h2 class="abhinaya-checkout__section-title">
+      <span class="abhinaya-checkout__step-num">2</span>
+      Delivery Address
+    </h2>
+
+    <div class="abhinaya-checkout__form-grid" id="abhinayaAddressForm">
+      <div class="abhinaya-checkout__field abhinaya-checkout__field--full">
+        <label class="abhinaya-checkout__label" for="abhinayaName">Full Name *</label>
+        <input type="text" id="abhinayaName" class="abhinaya-checkout__input" placeholder="Enter your full name" autocomplete="name" required>
+      </div>
+
+      <div class="abhinaya-checkout__field">
+        <label class="abhinaya-checkout__label" for="abhinayaPincode">Pincode *</label>
+        <input type="tel" id="abhinayaPincode" class="abhinaya-checkout__input" placeholder="6-digit pincode" maxlength="6" inputmode="numeric" pattern="[0-9]*" autocomplete="postal-code" required>
+        <span class="abhinaya-checkout__field-hint" id="abhinayaPincodeHint"></span>
+      </div>
+
+      <div class="abhinaya-checkout__field">
+        <label class="abhinaya-checkout__label" for="abhinayaCity">City *</label>
+        <input type="text" id="abhinayaCity" class="abhinaya-checkout__input" placeholder="City" autocomplete="address-level2" required>
+      </div>
+
+      <div class="abhinaya-checkout__field abhinaya-checkout__field--full">
+        <label class="abhinaya-checkout__label" for="abhinayaAddress">Address *</label>
+        <input type="text" id="abhinayaAddress" class="abhinaya-checkout__input" placeholder="House no., Building, Street" autocomplete="street-address" required>
+      </div>
+
+      <div class="abhinaya-checkout__field abhinaya-checkout__field--full">
+        <label class="abhinaya-checkout__label" for="abhinayaLocality">Locality / Landmark</label>
+        <input type="text" id="abhinayaLocality" class="abhinaya-checkout__input" placeholder="Locality or nearby landmark" autocomplete="address-level3">
+      </div>
+
+      <div class="abhinaya-checkout__field">
+        <label class="abhinaya-checkout__label" for="abhinayaState">State *</label>
+        <select id="abhinayaState" class="abhinaya-checkout__input abhinaya-checkout__select" autocomplete="address-level1" required>
+          <option value="">Select State</option>
+          <option value="Andhra Pradesh">Andhra Pradesh</option>
+          <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+          <option value="Assam">Assam</option>
+          <option value="Bihar">Bihar</option>
+          <option value="Chhattisgarh">Chhattisgarh</option>
+          <option value="Goa">Goa</option>
+          <option value="Gujarat">Gujarat</option>
+          <option value="Haryana">Haryana</option>
+          <option value="Himachal Pradesh">Himachal Pradesh</option>
+          <option value="Jharkhand">Jharkhand</option>
+          <option value="Karnataka">Karnataka</option>
+          <option value="Kerala">Kerala</option>
+          <option value="Madhya Pradesh">Madhya Pradesh</option>
+          <option value="Maharashtra">Maharashtra</option>
+          <option value="Manipur">Manipur</option>
+          <option value="Meghalaya">Meghalaya</option>
+          <option value="Mizoram">Mizoram</option>
+          <option value="Nagaland">Nagaland</option>
+          <option value="Odisha">Odisha</option>
+          <option value="Punjab">Punjab</option>
+          <option value="Rajasthan">Rajasthan</option>
+          <option value="Sikkim">Sikkim</option>
+          <option value="Tamil Nadu">Tamil Nadu</option>
+          <option value="Telangana">Telangana</option>
+          <option value="Tripura">Tripura</option>
+          <option value="Uttar Pradesh">Uttar Pradesh</option>
+          <option value="Uttarakhand">Uttarakhand</option>
+          <option value="West Bengal">West Bengal</option>
+          <option value="Delhi">Delhi</option>
+          <option value="Chandigarh">Chandigarh</option>
+          <option value="Puducherry">Puducherry</option>
+          <option value="Jammu and Kashmir">Jammu and Kashmir</option>
+          <option value="Ladakh">Ladakh</option>
+        </select>
+      </div>
+
+      <div class="abhinaya-checkout__field">
+        <label class="abhinaya-checkout__label" for="abhinayaCountry">Country</label>
+        <input type="text" id="abhinayaCountry" class="abhinaya-checkout__input" value="India" readonly>
+      </div>
+    </div>
+  </section>
+
+  <!-- Step 3: Payment Method -->
+  <section class="abhinaya-checkout__section abhinaya-checkout__section--locked" id="abhinayaPaymentSection">
+    <h2 class="abhinaya-checkout__section-title">
+      <span class="abhinaya-checkout__step-num">3</span>
+      Payment Method
+    </h2>
+
+    <div class="abhinaya-checkout__payment-options" id="abhinayaPaymentOptions">
+      <label class="abhinaya-checkout__payment-option abhinaya-checkout__payment-option--active">
+        <input type="radio" name="payment_method" value="online" checked>
+        <div class="abhinaya-checkout__payment-radio"></div>
+        <div class="abhinaya-checkout__payment-info">
+          <span class="abhinaya-checkout__payment-name">Pay Online</span>
+          <span class="abhinaya-checkout__payment-desc">UPI, Cards, Net Banking, Wallets</span>
+        </div>
+        <span class="abhinaya-checkout__payment-badge">Recommended</span>
+      </label>
+
+      <label class="abhinaya-checkout__payment-option">
+        <input type="radio" name="payment_method" value="cod">
+        <div class="abhinaya-checkout__payment-radio"></div>
+        <div class="abhinaya-checkout__payment-info">
+          <span class="abhinaya-checkout__payment-name">Cash on Delivery</span>
+          <span class="abhinaya-checkout__payment-desc">+{{ section.settings.cod_fee | default: '99' }} COD charges apply</span>
+        </div>
+      </label>
+    </div>
+  </section>
+
+  <!-- Order Summary Mini -->
+  <section class="abhinaya-checkout__summary" id="abhinayaOrderSummary">
+    <div class="abhinaya-checkout__summary-row">
+      <span>Subtotal</span>
+      <span id="abhinayaSubtotal">--</span>
+    </div>
+    <div class="abhinaya-checkout__summary-row" id="abhinayaCodFeeRow" hidden>
+      <span>COD Charges</span>
+      <span>+&#8377;{{ section.settings.cod_fee | default: '99' }}</span>
+    </div>
+    <div class="abhinaya-checkout__summary-row abhinaya-checkout__summary-row--total">
+      <span>Total</span>
+      <span id="abhinayaTotal">--</span>
+    </div>
+  </section>
+
+</div>
+
+<!-- Sticky Bottom CTA -->
+<div class="abhinaya-checkout__sticky-cta">
+  <div class="abhinaya-checkout__cta-price">
+    <span class="abhinaya-checkout__cta-label">Total</span>
+    <span class="abhinaya-checkout__cta-amount" id="abhinayaCtaTotal">--</span>
+  </div>
+  <button type="button" class="abhinaya-checkout__cta-btn" id="abhinayaCheckoutBtn" disabled>
+    Pay Now
+  </button>
+</div>
+
+<!-- Toast -->
+<div class="abhinaya-checkout__toast" id="abhinayaCheckoutToast" hidden>
+  <span id="abhinayaCheckoutToastText"></span>
+</div>
+
+<style>
+  /* ── Reset for this page ── */
+  .abhinaya-checkout__header,
+  .abhinaya-checkout__body,
+  .abhinaya-checkout__sticky-cta {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Sticky Header ── */
+  .abhinaya-checkout__header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    height: 56px;
+    padding: 0 16px;
+    background: #fff;
+    border-bottom: 1px solid #eee;
+  }
+  .abhinaya-checkout__back {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    color: #1a1a2e;
+    text-decoration: none;
+    margin-left: -8px;
+  }
+  .abhinaya-checkout__header-title {
+    flex: 1;
+    font-size: 17px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin: 0;
+  }
+  .abhinaya-checkout__header-secure {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: #2d8f4e;
+    font-weight: 600;
+  }
+
+  /* ── Body ── */
+  .abhinaya-checkout__body {
+    padding: 0 16px 120px;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  /* ── Section ── */
+  .abhinaya-checkout__section {
+    padding: 20px 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .abhinaya-checkout__section--locked {
+    opacity: 0.4;
+    pointer-events: none;
+  }
+  .abhinaya-checkout__section-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin: 0 0 16px;
+  }
+  .abhinaya-checkout__step-num {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #1a1a2e;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  /* ── Phone Row ── */
+  .abhinaya-checkout__phone-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .abhinaya-checkout__country-code {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 48px;
+    padding: 0 12px;
+    background: #f5f5f5;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #1a1a2e;
+  }
+  .abhinaya-checkout__input {
+    height: 48px;
+    padding: 0 14px;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 15px;
+    color: #1a1a2e;
+    background: #fff;
+    width: 100%;
+    box-sizing: border-box;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .abhinaya-checkout__input:focus {
+    border-color: #1a1a2e;
+  }
+  .abhinaya-checkout__input.is-error {
+    border-color: #e63946;
+  }
+  .abhinaya-checkout__select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%23666' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 36px;
+  }
+  .abhinaya-checkout__otp-btn {
+    flex-shrink: 0;
+    height: 48px;
+    padding: 0 20px;
+    background: #1a1a2e;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .abhinaya-checkout__otp-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* ── OTP Row ── */
+  .abhinaya-checkout__otp-row {
+    margin-top: 16px;
+    text-align: center;
+  }
+  .abhinaya-checkout__otp-inputs {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .abhinaya-checkout__otp-digit {
+    width: 52px;
+    height: 52px;
+    text-align: center;
+    font-size: 22px;
+    font-weight: 700;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 10px;
+    color: #1a1a2e;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .abhinaya-checkout__otp-digit:focus {
+    border-color: #1a1a2e;
+  }
+  .abhinaya-checkout__verify-btn {
+    width: 100%;
+    height: 48px;
+    background: #1a1a2e;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .abhinaya-checkout__verify-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .abhinaya-checkout__resend {
+    margin: 12px 0 0;
+    font-size: 13px;
+    color: #888;
+  }
+  .abhinaya-checkout__resend-btn {
+    background: none;
+    border: none;
+    color: #1a1a2e;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    padding: 0;
+    text-decoration: underline;
+  }
+  .abhinaya-checkout__resend-btn:disabled {
+    color: #888;
+    text-decoration: none;
+    cursor: not-allowed;
+  }
+
+  /* ── Verified State ── */
+  .abhinaya-checkout__verified {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: #eaf7ee;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #2d8f4e;
+  }
+  .abhinaya-checkout__change-btn {
+    margin-left: auto;
+    background: none;
+    border: none;
+    color: #1a1a2e;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 0;
+  }
+
+  /* ── Form Grid ── */
+  .abhinaya-checkout__form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .abhinaya-checkout__field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .abhinaya-checkout__field--full {
+    grid-column: 1 / -1;
+  }
+  .abhinaya-checkout__label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #555;
+  }
+  .abhinaya-checkout__field-hint {
+    font-size: 12px;
+    color: #2d8f4e;
+    min-height: 16px;
+  }
+  .abhinaya-checkout__field-hint.is-error {
+    color: #e63946;
+  }
+
+  /* ── Payment Options ── */
+  .abhinaya-checkout__payment-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .abhinaya-checkout__payment-option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .abhinaya-checkout__payment-option--active {
+    border-color: #1a1a2e;
+    background: #fafafa;
+  }
+  .abhinaya-checkout__payment-option input[type="radio"] {
+    display: none;
+  }
+  .abhinaya-checkout__payment-radio {
+    width: 22px;
+    height: 22px;
+    border: 2px solid #ccc;
+    border-radius: 50%;
+    flex-shrink: 0;
+    position: relative;
+    transition: border-color 0.2s;
+  }
+  .abhinaya-checkout__payment-option--active .abhinaya-checkout__payment-radio {
+    border-color: #1a1a2e;
+  }
+  .abhinaya-checkout__payment-option--active .abhinaya-checkout__payment-radio::after {
+    content: '';
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #1a1a2e;
+  }
+  .abhinaya-checkout__payment-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .abhinaya-checkout__payment-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1a1a2e;
+  }
+  .abhinaya-checkout__payment-desc {
+    font-size: 12px;
+    color: #888;
+  }
+  .abhinaya-checkout__payment-badge {
+    font-size: 10px;
+    font-weight: 700;
+    color: #2d8f4e;
+    background: #eaf7ee;
+    padding: 3px 8px;
+    border-radius: 6px;
+    white-space: nowrap;
+  }
+
+  /* ── Order Summary ── */
+  .abhinaya-checkout__summary {
+    padding: 20px 0;
+  }
+  .abhinaya-checkout__summary-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    font-size: 14px;
+    color: #555;
+  }
+  .abhinaya-checkout__summary-row--total {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a1a2e;
+    border-top: 1px solid #eee;
+    padding-top: 12px;
+    margin-top: 6px;
+  }
+
+  /* ── Sticky CTA ── */
+  .abhinaya-checkout__sticky-cta {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 900;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+    background: #fff;
+    box-shadow: 0 -2px 12px rgba(0,0,0,0.1);
+  }
+  .abhinaya-checkout__cta-price {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .abhinaya-checkout__cta-label {
+    font-size: 12px;
+    color: #888;
+  }
+  .abhinaya-checkout__cta-amount {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a1a2e;
+  }
+  .abhinaya-checkout__cta-btn {
+    height: 50px;
+    padding: 0 40px;
+    background: #1a1a2e;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .abhinaya-checkout__cta-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .abhinaya-checkout__cta-btn:active:not(:disabled) {
+    opacity: 0.8;
+  }
+
+  /* ── Toast ── */
+  .abhinaya-checkout__toast {
+    position: fixed;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #1a1a2e;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 12px 24px;
+    border-radius: 10px;
+    opacity: 0;
+    transition: opacity 0.3s, transform 0.3s;
+    z-index: 1000;
+    white-space: nowrap;
+  }
+  .abhinaya-checkout__toast.is-visible {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* ── Desktop ── */
+  @media (min-width: 750px) {
+    .abhinaya-checkout__body {
+      padding-top: 16px;
+    }
+    .abhinaya-checkout__sticky-cta {
+      max-width: 600px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-radius: 16px 16px 0 0;
+    }
+  }
+</style>
+
+{% if section.settings.google_places_api_key %}
+<script src="https://maps.googleapis.com/maps/api/js?key={{ section.settings.google_places_api_key }}&libraries=places" async defer></script>
+{% endif %}
+
+<script src="{{ 'abhinaya-checkout.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "Pre-Checkout",
+  "settings": [
+    {
+      "type": "text",
+      "id": "cod_fee",
+      "label": "COD fee (in rupees)",
+      "default": "99"
+    },
+    {
+      "type": "text",
+      "id": "google_places_api_key",
+      "label": "Google Places API Key",
+      "info": "Optional – enables address autocomplete"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,705 @@
+{%- comment -%}
+  Abhinaya Order Confirmation - Custom post-purchase success page
+  Features:
+  - Success checkmark animation
+  - Order ID, total, and status
+  - Products summary with thumbnails
+  - Delivery address and payment method
+  - Order timeline (Confirmed → Packed → Shipped → Delivered)
+  - CTAs: Track Order, WhatsApp support, Continue shopping
+{%- endcomment -%}
+
+<div class="abhinaya-order-confirmation">
+  <!-- Success Checkmark Animation -->
+  <div class="abhinaya-order-confirmation__success-animation">
+    <svg class="abhinaya-success-check" viewBox="0 0 24 24" width="64" height="64">
+      <defs>
+        <style>
+          .success-checkmark {
+            stroke: #2d8f4e;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            animation: checkmark 0.6s ease-out 0.3s forwards;
+            opacity: 0;
+          }
+          .success-circle {
+            stroke: #2d8f4e;
+            fill: none;
+            stroke-width: 2;
+            animation: circle-draw 0.6s ease-out forwards;
+          }
+          @keyframes circle-draw {
+            from {
+              stroke-dasharray: 75.4;
+              stroke-dashoffset: 75.4;
+            }
+            to {
+              stroke-dasharray: 75.4;
+              stroke-dashoffset: 0;
+            }
+          }
+          @keyframes checkmark {
+            to {
+              opacity: 1;
+            }
+          }
+          @media (prefers-reduced-motion: reduce) {
+            .success-circle, .success-checkmark {
+              animation: none;
+              opacity: 1;
+              stroke-dashoffset: 0;
+            }
+          }
+        </style>
+      </defs>
+      <circle cx="12" cy="12" r="12" class="success-circle"/>
+      <polyline points="7 12 10 15 17 8" class="success-checkmark"/>
+    </svg>
+  </div>
+
+  <!-- Order Header -->
+  <section class="abhinaya-order-confirmation__header">
+    <h1 class="abhinaya-order-confirmation__title">Order Confirmed!</h1>
+    <p class="abhinaya-order-confirmation__subtitle">Thank you for your purchase</p>
+    
+    <!-- Order ID & Amount -->
+    <div class="abhinaya-order-confirmation__meta">
+      <div class="abhinaya-order-confirmation__meta-item">
+        <span class="abhinaya-order-confirmation__meta-label">Order ID</span>
+        <span class="abhinaya-order-confirmation__meta-value">#{{ order.order_number }}</span>
+      </div>
+      <div class="abhinaya-order-confirmation__meta-item">
+        <span class="abhinaya-order-confirmation__meta-label">Order Total</span>
+        <span class="abhinaya-order-confirmation__meta-value">{{ order.total_price | money_with_currency }}</span>
+      </div>
+      <div class="abhinaya-order-confirmation__meta-item">
+        <span class="abhinaya-order-confirmation__meta-label">Status</span>
+        <span class="abhinaya-order-confirmation__meta-value abhinaya-order-confirmation__status-confirmed">
+          {% case order.fulfillment_status %}
+            {% when 'unshipped' %}Confirmed
+            {% when 'partial' %}Partially Shipped
+            {% when 'shipped' %}Shipped
+            {% when 'cancelled' %}Cancelled
+            {% else %}{{ order.fulfillment_status | capitalize }}
+          {% endcase %}
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Product Summary -->
+  <section class="abhinaya-order-confirmation__products">
+    <h2 class="abhinaya-order-confirmation__section-title">Order Items</h2>
+    <div class="abhinaya-order-confirmation__items-list">
+      {%- for item in order.line_items -%}
+        <div class="abhinaya-order-confirmation__item">
+          <!-- Product Image -->
+          {% assign featured_image = item.image %}
+          {% if featured_image %}
+            <div class="abhinaya-order-confirmation__item-image">
+              <img src="{{ featured_image | image_url: width: 100 }}" alt="{{ item.title | escape }}" loading="lazy" width="80" height="100">
+            </div>
+          {% endif %}
+          
+          <!-- Product Info -->
+          <div class="abhinaya-order-confirmation__item-details">
+            <h3 class="abhinaya-order-confirmation__item-title">{{ item.product.title }}</h3>
+            {% if item.variant.title != 'Default Title' %}
+              <p class="abhinaya-order-confirmation__item-variant">{{ item.variant.title }}</p>
+            {% endif %}
+            <p class="abhinaya-order-confirmation__item-qty">Qty: {{ item.quantity }}</p>
+          </div>
+
+          <!-- Price -->
+          <div class="abhinaya-order-confirmation__item-price">
+            {{ item.line_price | money }}
+          </div>
+        </div>
+      {%- endfor -%}
+    </div>
+
+    <!-- Order Summary -->
+    <div class="abhinaya-order-confirmation__summary">
+      <div class="abhinaya-order-confirmation__summary-row">
+        <span>Subtotal</span>
+        <span>{{ order.subtotal_price | money }}</span>
+      </div>
+      {%- if order.shipping_price > 0 -%}
+        <div class="abhinaya-order-confirmation__summary-row">
+          <span>Shipping</span>
+          <span>{{ order.shipping_price | money }}</span>
+        </div>
+      {%- endif -%}
+      {%- if order.tax_price > 0 -%}
+        <div class="abhinaya-order-confirmation__summary-row">
+          <span>Tax</span>
+          <span>{{ order.tax_price | money }}</span>
+        </div>
+      {%- endif -%}
+      <div class="abhinaya-order-confirmation__summary-row abhinaya-order-confirmation__summary-total">
+        <span>Total</span>
+        <span>{{ order.total_price | money_with_currency }}</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Delivery Details -->
+  <section class="abhinaya-order-confirmation__delivery">
+    <h2 class="abhinaya-order-confirmation__section-title">Delivery Details</h2>
+    
+    <div class="abhinaya-order-confirmation__address-block">
+      <h3 class="abhinaya-order-confirmation__address-title">Shipping Address</h3>
+      {%- if order.shipping_address -%}
+        <p class="abhinaya-order-confirmation__address-text">
+          {{ order.shipping_address.name }}<br>
+          {{ order.shipping_address.address1 }}
+          {%- if order.shipping_address.address2 %}<br>{{ order.shipping_address.address2 }}{% endif %}<br>
+          {{ order.shipping_address.city }}, {{ order.shipping_address.province }} {{ order.shipping_address.zip }}<br>
+          {{ order.shipping_address.country }}
+        </p>
+        <p class="abhinaya-order-confirmation__address-phone">
+          <strong>Phone:</strong> {{ order.shipping_address.phone }}
+        </p>
+      {%- endif -%}
+    </div>
+
+    <!-- Payment Method -->
+    <div class="abhinaya-order-confirmation__payment-block">
+      <h3 class="abhinaya-order-confirmation__payment-title">Payment Method</h3>
+      {%- if order.payment_details -%}
+        <p class="abhinaya-order-confirmation__payment-text">
+          {% case order.payment_details.payment_method %}
+            {% when 'credit_card' %}🔒 Credit/Debit Card
+            {% when 'cod' %}💵 Cash on Delivery
+            {% when 'digital_wallet' %}📱 Digital Wallet
+            {% else %}{{ order.payment_details.payment_method | capitalize }}
+          {% endcase %}
+        </p>
+      {%- endif -%}
+    </div>
+  </section>
+
+  <!-- Order Timeline -->
+  <section class="abhinaya-order-confirmation__timeline">
+    <h2 class="abhinaya-order-confirmation__section-title">Order Status</h2>
+    <div class="abhinaya-order-confirmation__timeline-track">
+      <!-- Step 1: Confirmed -->
+      <div class="abhinaya-order-confirmation__timeline-step abhinaya-order-confirmation__timeline-step--completed">
+        <div class="abhinaya-order-confirmation__timeline-dot">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+        <span class="abhinaya-order-confirmation__timeline-label">Order Confirmed</span>
+        <span class="abhinaya-order-confirmation__timeline-date">Today</span>
+      </div>
+
+      <!-- Step 2: Packed -->
+      <div class="abhinaya-order-confirmation__timeline-step {% if order.fulfillment_status != 'unshipped' %}abhinaya-order-confirmation__timeline-step--completed{% endif %}">
+        <div class="abhinaya-order-confirmation__timeline-dot">
+          {%- if order.fulfillment_status != 'unshipped' -%}
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          {%- else -%}
+            <span></span>
+          {%- endif -%}
+        </div>
+        <span class="abhinaya-order-confirmation__timeline-label">Packed</span>
+        <span class="abhinaya-order-confirmation__timeline-date">Soon</span>
+      </div>
+
+      <!-- Step 3: Shipped -->
+      <div class="abhinaya-order-confirmation__timeline-step {% if order.fulfillment_status == 'shipped' or order.fulfillment_status == 'partial' %}abhinaya-order-confirmation__timeline-step--completed{% endif %}">
+        <div class="abhinaya-order-confirmation__timeline-dot">
+          {%- if order.fulfillment_status == 'shipped' or order.fulfillment_status == 'partial' -%}
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          {%- else -%}
+            <span></span>
+          {%- endif -%}
+        </div>
+        <span class="abhinaya-order-confirmation__timeline-label">Shipped</span>
+        <span class="abhinaya-order-confirmation__timeline-date">Pending</span>
+      </div>
+
+      <!-- Step 4: Delivered -->
+      <div class="abhinaya-order-confirmation__timeline-step">
+        <div class="abhinaya-order-confirmation__timeline-dot">
+          <span></span>
+        </div>
+        <span class="abhinaya-order-confirmation__timeline-label">Delivered</span>
+        <span class="abhinaya-order-confirmation__timeline-date">Pending</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTAs -->
+  <section class="abhinaya-order-confirmation__ctas">
+    <a href="/orders/{{ order.number }}" class="abhinaya-order-confirmation__cta abhinaya-order-confirmation__cta--primary">
+      Track Order
+    </a>
+    <a href="https://wa.me/911234567890?text=Hello%20Abhinaya%20Sarees%2C%20I%20have%20a%20query%20about%20my%20order%20%23{{ order.order_number }}" class="abhinaya-order-confirmation__cta abhinaya-order-confirmation__cta--secondary" target="_blank">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.67-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.076 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421-7.403h-.004a9.87 9.87 0 00-9.746 9.798c0 2.734.732 5.41 2.124 7.738L.929 23.5l8.272-2.737c2.194 1.14 4.656 1.742 7.15 1.742 9.563 0 17.35-7.787 17.35-17.349 0-4.63-1.773-8.981-4.979-12.263-3.206-3.283-7.534-5.084-12.102-5.084m14.827 18.087c-3.869 0-7.61 1.177-10.824 3.398l-.777.517-8.04 2.657 2.702-8.06-.523-.834c-2.332-3.709-3.565-8.042-3.565-12.544 0-13.584 11.066-24.649 24.649-24.649 6.583 0 12.77 2.56 17.428 7.217 4.658 4.658 7.218 10.845 7.218 17.427 0 13.584-11.065 24.649-24.648 24.649z"/>
+      </svg>
+      WhatsApp Support
+    </a>
+    <a href="/" class="abhinaya-order-confirmation__cta abhinaya-order-confirmation__cta--tertiary">
+      Continue Shopping
+    </a>
+  </section>
+
+  <!-- Help Section -->
+  <section class="abhinaya-order-confirmation__help">
+    <h3 class="abhinaya-order-confirmation__help-title">Need Help?</h3>
+    <div class="abhinaya-order-confirmation__help-grid">
+      <a href="/" class="abhinaya-order-confirmation__help-link">
+        <span class="abhinaya-order-confirmation__help-icon">📧</span>
+        <span>Email Support</span>
+      </a>
+      <a href="/" class="abhinaya-order-confirmation__help-link">
+        <span class="abhinaya-order-confirmation__help-icon">📞</span>
+        <span>Call Us</span>
+      </a>
+      <a href="/" class="abhinaya-order-confirmation__help-link">
+        <span class="abhinaya-order-confirmation__help-icon">❓</span>
+        <span>FAQ</span>
+      </a>
+    </div>
+  </section>
+</div>
+
+<style>
+  .abhinaya-order-confirmation {
+    padding: 24px 16px 80px;
+    max-width: 100%;
+  }
+
+  /* ── Success Animation ── */
+  .abhinaya-order-confirmation__success-animation {
+    text-align: center;
+    margin-bottom: 32px;
+    padding-top: 16px;
+  }
+
+  .abhinaya-success-check {
+    max-width: 80px;
+    margin: 0 auto;
+  }
+
+  /* ── Header ── */
+  .abhinaya-order-confirmation__header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding: 32px 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .abhinaya-order-confirmation__title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin: 0 0 8px;
+  }
+
+  .abhinaya-order-confirmation__subtitle {
+    font-size: 14px;
+    color: #666;
+    margin: 0 0 24px;
+  }
+
+  .abhinaya-order-confirmation__meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 24px;
+  }
+
+  .abhinaya-order-confirmation__meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .abhinaya-order-confirmation__meta-label {
+    font-size: 12px;
+    color: #999;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  .abhinaya-order-confirmation__meta-value {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a1a2e;
+  }
+
+  .abhinaya-order-confirmation__status-confirmed {
+    color: #2d8f4e;
+  }
+
+  /* ── Products ── */
+  .abhinaya-order-confirmation__products {
+    margin-bottom: 40px;
+  }
+
+  .abhinaya-order-confirmation__section-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin: 0 0 16px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .abhinaya-order-confirmation__items-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .abhinaya-order-confirmation__item {
+    display: flex;
+    gap: 12px;
+    padding: 12px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    align-items: flex-start;
+  }
+
+  .abhinaya-order-confirmation__item-image {
+    flex: 0 0 auto;
+    width: 80px;
+    height: 100px;
+    border-radius: 4px;
+    overflow: hidden;
+    background: #fff;
+  }
+
+  .abhinaya-order-confirmation__item-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .abhinaya-order-confirmation__item-details {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .abhinaya-order-confirmation__item-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1a1a2e;
+    margin: 0;
+  }
+
+  .abhinaya-order-confirmation__item-variant {
+    font-size: 12px;
+    color: #666;
+    margin: 0;
+  }
+
+  .abhinaya-order-confirmation__item-qty {
+    font-size: 12px;
+    color: #999;
+    margin: 0;
+  }
+
+  .abhinaya-order-confirmation__item-price {
+    flex: 0 0 auto;
+    font-size: 14px;
+    font-weight: 700;
+    color: #1a1a2e;
+    text-align: right;
+  }
+
+  /* ── Summary ── */
+  .abhinaya-order-confirmation__summary {
+    background: #f9f9f9;
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .abhinaya-order-confirmation__summary-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    color: #666;
+  }
+
+  .abhinaya-order-confirmation__summary-total {
+    border-top: 1px solid #ddd;
+    padding-top: 12px;
+    margin-top: 4px;
+    color: #1a1a2e;
+    font-weight: 700;
+  }
+
+  /* ── Delivery ── */
+  .abhinaya-order-confirmation__delivery {
+    margin-bottom: 40px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .abhinaya-order-confirmation__address-block,
+  .abhinaya-order-confirmation__payment-block {
+    background: #f9f9f9;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+
+  .abhinaya-order-confirmation__address-title,
+  .abhinaya-order-confirmation__payment-title {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #999;
+    margin: 0 0 8px;
+  }
+
+  .abhinaya-order-confirmation__address-text,
+  .abhinaya-order-confirmation__payment-text {
+    font-size: 14px;
+    line-height: 1.5;
+    color: #1a1a2e;
+    margin: 0;
+  }
+
+  .abhinaya-order-confirmation__address-phone {
+    font-size: 13px;
+    color: #666;
+    margin: 8px 0 0;
+  }
+
+  /* ── Timeline ── */
+  .abhinaya-order-confirmation__timeline {
+    margin-bottom: 40px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .abhinaya-order-confirmation__timeline-track {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .abhinaya-order-confirmation__timeline-step {
+    position: relative;
+    padding-left: 32px;
+    padding-bottom: 16px;
+  }
+
+  .abhinaya-order-confirmation__timeline-step:nth-child(odd) {
+    grid-column: 1;
+  }
+
+  .abhinaya-order-confirmation__timeline-step:nth-child(even) {
+    grid-column: 2;
+    padding-left: 16px;
+  }
+
+  .abhinaya-order-confirmation__timeline-dot {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #f0f0f0;
+    border: 2px solid #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+    font-size: 10px;
+  }
+
+  .abhinaya-order-confirmation__timeline-step--completed .abhinaya-order-confirmation__timeline-dot {
+    background: #2d8f4e;
+    border-color: #2d8f4e;
+    color: #fff;
+  }
+
+  .abhinaya-order-confirmation__timeline-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1a1a2e;
+    margin-bottom: 4px;
+  }
+
+  .abhinaya-order-confirmation__timeline-date {
+    display: block;
+    font-size: 12px;
+    color: #999;
+  }
+
+  /* ── CTAs ── */
+  .abhinaya-order-confirmation__ctas {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 40px;
+  }
+
+  .abhinaya-order-confirmation__cta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    outline: none;
+    transition: all 0.15s ease;
+    min-height: 48px;
+  }
+
+  .abhinaya-order-confirmation__cta--primary {
+    background: #1a1a2e;
+    color: #fff;
+  }
+
+  .abhinaya-order-confirmation__cta--primary:active {
+    opacity: 0.85;
+  }
+
+  .abhinaya-order-confirmation__cta--secondary {
+    background: #25d366;
+    color: #fff;
+  }
+
+  .abhinaya-order-confirmation__cta--secondary:active {
+    opacity: 0.85;
+  }
+
+  .abhinaya-order-confirmation__cta--tertiary {
+    background: transparent;
+    color: #1a1a2e;
+    border: 1px solid #ddd;
+  }
+
+  .abhinaya-order-confirmation__cta--tertiary:active {
+    background: #f9f9f9;
+  }
+
+  /* ── Help Section ── */
+  .abhinaya-order-confirmation__help {
+    background: #f9f9f9;
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+  }
+
+  .abhinaya-order-confirmation__help-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin: 0 0 16px;
+  }
+
+  .abhinaya-order-confirmation__help-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+  }
+
+  .abhinaya-order-confirmation__help-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 8px;
+    text-decoration: none;
+    color: #1a1a2e;
+    font-size: 12px;
+    border-radius: 4px;
+    transition: background 0.15s ease;
+  }
+
+  .abhinaya-order-confirmation__help-link:active {
+    background: #e8e8e8;
+  }
+
+  .abhinaya-order-confirmation__help-icon {
+    font-size: 24px;
+    display: block;
+  }
+
+  /* ── Desktop ── */
+  @media (min-width: 750px) {
+    .abhinaya-order-confirmation {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
+
+    .abhinaya-order-confirmation__success-animation {
+      margin-bottom: 40px;
+      padding-top: 24px;
+    }
+
+    .abhinaya-order-confirmation__meta {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    .abhinaya-order-confirmation__timeline-track {
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+    }
+
+    .abhinaya-order-confirmation__timeline-step {
+      grid-column: auto;
+      padding-left: 32px;
+    }
+
+    .abhinaya-order-confirmation__timeline-step:nth-child(even) {
+      padding-left: 32px;
+    }
+
+    .abhinaya-order-confirmation__ctas {
+      gap: 12px;
+    }
+
+    .abhinaya-order-confirmation__help-grid {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .abhinaya-success-check {
+      animation: none !important;
+      opacity: 1;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Order Confirmation",
+  "settings": [
+    {
+      "type": "text",
+      "id": "whatsapp_number",
+      "label": "WhatsApp Business Number",
+      "info": "Format: 91XXXXXXXXXX",
+      "default": "911234567890"
+    }
+  ]
+}
+{% endschema %}
